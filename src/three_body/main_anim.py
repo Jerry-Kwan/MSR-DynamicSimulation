@@ -82,7 +82,7 @@ def ThreeBodyEquations(w, t, G, m1, m2, m3):
 
 # Package initial parameters
 N = 500
-init_params = sci.array([r1, r2, r3, v1, v2, v3])  # Initial parameters
+init_params = np.array([r1, r2, r3, v1, v2, v3])  # Initial parameters
 init_params = init_params.flatten()                # Flatten to make 1D array
 time_span = np.linspace(0, 20, N)                  # 20 orbital periods and 500 points
 
@@ -106,7 +106,7 @@ ax = fig.add_subplot(111, projection="3d")
 ax.set_xlabel("x-coordinate")
 ax.set_ylabel("y-coordinate")
 ax.set_zlabel("z-coordinate")
-ax.set_title("Visualization of orbits of stars in a two-bodysystem\n")
+ax.set_title("Visualization of orbits of stars in a three-bodysystem\n")
 # ax.legend()
 
 # Initialize three lines variable
@@ -152,13 +152,13 @@ def animate(i):
     tra3.set_data(r3_sol[:i, 0], r3_sol[:i, 1])
     tra3.set_3d_properties(r3_sol[:i, 2], 'z')
 
-    p1.set_data(r1_sol[i - 1, 0], r1_sol[i - 1, 1])
+    p1.set_data([r1_sol[i - 1, 0]], [r1_sol[i - 1, 1]])
     p1.set_3d_properties(r1_sol[i - 1, 2], 'z')
 
-    p2.set_data(r2_sol[i - 1, 0], r2_sol[i - 1, 1])
+    p2.set_data([r2_sol[i - 1, 0]], [r2_sol[i - 1, 1]])
     p2.set_3d_properties(r2_sol[i - 1, 2], 'z')
 
-    p3.set_data(r3_sol[i - 1, 0], r3_sol[i - 1, 1])
+    p3.set_data([r3_sol[i - 1, 0]], [r3_sol[i - 1, 1]])
     p3.set_3d_properties(r3_sol[i - 1, 2], 'z')
 
     return tra1, tra2, tra3, p1, p2, p3

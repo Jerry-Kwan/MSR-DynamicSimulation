@@ -81,7 +81,7 @@ def ThreeBodyEquations(w, t, G, m1, m2, m3):
 
 # Package initial parameters
 N = 500
-init_params = sci.array([r1, r2, r3, v1, v2, v3])  # Initial parameters
+init_params = np.array([r1, r2, r3, v1, v2, v3])  # Initial parameters
 init_params = init_params.flatten()                # Flatten to make 1D array
 time_span = np.linspace(0, 20, N)                  # 20 orbital periods and 500 points
 
