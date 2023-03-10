@@ -1,7 +1,8 @@
 .DS_Store
 .vscode/
-~$*
+.ipynb_checkpoints/
 __pycache__/
+~$*
 tmp*
 notes_*
 snapshot/

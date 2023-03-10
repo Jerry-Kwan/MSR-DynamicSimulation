@@ -20,7 +20,7 @@ K1 = G * t_nd * m_nd / (r_nd**2 * v_nd)
 K2 = v_nd * t_nd / r_nd
 
 # Define the number of particles
-N_PARTICLES = 10
+N_PARTICLES = 6
 
 # Define softening
 # softening = 0.1
@@ -114,13 +114,23 @@ def init():
     return tra + p
 
 
+# Define the number of tail
+N_TAIL = 50
+
+
 def animate(i):
     for j in range(N_PARTICLES):
-        tra[j].set_data(pos_sol[:i, j, 0], pos_sol[:i, j, 1])
-        tra[j].set_3d_properties(pos_sol[:i, j, 2], 'z')
-
         p[j].set_data([pos_sol[i - 1, j, 0]], [pos_sol[i - 1, j, 1]])
         p[j].set_3d_properties(pos_sol[i - 1, j, 2], 'z')
+
+    if i <= 50:
+        for j in range(N_PARTICLES):
+            tra[j].set_data(pos_sol[:i, j, 0], pos_sol[:i, j, 1])
+            tra[j].set_3d_properties(pos_sol[:i, j, 2], 'z')
+    else:
+        for j in range(N_PARTICLES):
+            tra[j].set_data(pos_sol[i - N_TAIL:i, j, 0], pos_sol[i - N_TAIL:i, j, 1])
+            tra[j].set_3d_properties(pos_sol[i - N_TAIL:i, j, 2], 'z')
 
     return tra + p
 
