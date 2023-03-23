@@ -5,5 +5,7 @@ __pycache__/
 ~$*
 tmp*
 
-notes_*
+notes_dynamics_simulation.md
+docs/imgs/
+paper/
 snapshot/
