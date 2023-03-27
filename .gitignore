@@ -1,3 +1,4 @@
+# Common
 .DS_Store
 .vscode/
 .ipynb_checkpoints/
@@ -5,7 +6,13 @@ __pycache__/
 ~$*
 tmp*
 
+# docs
 notes_dynamics_simulation.md
 docs/imgs/
 paper/
 snapshot/
+application/
+
+# src
+torchmd-net-main-0326.zip
+Mambaforge-Linux-x86_64.sh
