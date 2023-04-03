@@ -2,12 +2,24 @@
 bash Mambaforge-Linux-x86_64.sh # install under /root, and remember init
 source ~/.bashrc
 
-mamba create -n torchmd_cg python=3.9
-mamba activate torchmd_cg
+# environment2.yml is under torchmd_cg
+mamba env create -f environment2.yml
+mamba activate torchmd-cg
 
-# download pytorch
-mamba install pytorch==1.11.0 torchvision==0.12.0 torchaudio==0.11.0 cudatoolkit=11.3 -c pytorch
+# under my_torchmd_net
+pip install -e .
 
 # other
-mamba install -c conda-forge -c acellera pyyaml ipython scikit-learn tqdm pytorch-lightning==1.6.3 moleculekit seaborn pandas jupyter
-pip install torchmd-cg parmed
+pip install parmed
+
+# My way to install torchmd-cg, not use `pip install torchmd-cg`.
+# Modify setup.py in torchmd_cg/ to eliminate requirements.txt in torchmd_cg/,
+# which means `pip install -e .` just install torchmd_cg here.
+# Manually install packages in requirements.txt except schnetpack, which isn't used.
+# Installing torchmd by `pip install torchmd` will install torchvision and torch,
+# which doesn't work.
+# So install torchmd (modified by myself) by `pip install -e .`.
+# Under torchmd_cg
+pip install -e .
+cd torchmd_pypi20230403_modified
+pip install -e .

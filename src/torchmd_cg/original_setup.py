@@ -1,6 +1,19 @@
 import setuptools
+import subprocess
+import os
 
-version = '0'
+try:
+    version = (
+        subprocess.check_output(["git", "describe", "--abbrev=0", "--tags"])
+        .strip()
+        .decode("utf-8")
+    )
+except Exception as e:
+    print("Could not get version tag. Defaulting to version 0")
+    version = "0"
+
+with open("requirements.txt") as f:
+    requirements = f.read().splitlines()
 
 if __name__ == "__main__":
     with open("README.md", "r") as fh:
@@ -22,4 +35,5 @@ if __name__ == "__main__":
         ],
         packages=setuptools.find_packages(include=["torchmd_cg*"], exclude=[]),
         # package_data={"torchmd_cg": ["config.ini", "logging.ini"],},
+        install_requires=requirements,
     )

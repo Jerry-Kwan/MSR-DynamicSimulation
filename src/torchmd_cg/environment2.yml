@@ -1,0 +1,29 @@
+name: torchmd-cg
+channels:
+  - conda-forge
+  - acellera
+dependencies:
+  - h5py
+  - pyyaml
+  - ipython
+  - scikit-learn
+  - scipy
+  - moleculekit
+  - seaborn
+  - pandas
+  - jupyter
+  - matplotlib
+  - nnpops==0.2
+  - pip
+  - pytorch==1.11.0
+  - pytorch_cluster==1.5.9
+  - pytorch_geometric==2.0.3
+  - pytorch_scatter==2.0.8
+  - pytorch_sparse==0.6.10
+  - pytorch-lightning==1.6.3
+  - torchmetrics==0.8.2
+  - tqdm
+  # Dev tools
+  - flake8
+  - pytest
+  - psutil
