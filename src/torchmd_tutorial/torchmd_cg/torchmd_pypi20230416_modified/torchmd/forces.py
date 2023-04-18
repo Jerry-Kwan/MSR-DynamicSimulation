@@ -1,23 +1,22 @@
 from scipy import constants as const
 import torch
-import yaml
 import numpy as np
 from math import pi
 
 
 class Forces:
     """
-        Parameters
-        ----------
-        cutoff : float
-            If set to a value it will only calculate LJ, electrostatics and bond energies for atoms which are closer
-            than the threshold
-        rfa : bool
-            Use with `cutoff` to enable the reaction field approximation for scaling of the electrostatics up to the cutoff.
-            Uses the value of `solventDielectric` to model everything beyond the cutoff distance as solvent with uniform
-            dielectric.
-        solventDielectric : float
-            Used together with `cutoff` and `rfa`
+    Parameters
+    ----------
+    cutoff : float
+        If set to a value it will only calculate LJ, electrostatics and bond energies for atoms which are closer
+        than the threshold
+    rfa : bool
+        Use with `cutoff` to enable the reaction field approximation for scaling of the electrostatics up to the cutoff.
+        Uses the value of `solventDielectric` to model everything beyond the cutoff distance as solvent with uniform
+        dielectric.
+    solventDielectric : float
+        Used together with `cutoff` and `rfa`
     """
 
     # 1-4 is nonbonded but we put it currently in bonded to not calculate all distances
@@ -38,21 +37,16 @@ class Forces:
     ):
         self.par = parameters
         if terms is None:
-            terms = (
-                "electrostatics",
-                "lj",
-                "bonds",
-                "angles",
-                "dihedrals",
-                "1-4",
-                "impropers",
+            raise RuntimeError(
+                'Set force terms or leave empty brackets [].\nAvailable options: "bonds", "angles", "dihedrals", "impropers", "1-4", "electrostatics", "lj", "repulsion", "repulsioncg".'
             )
+
         self.energies = [ene.lower() for ene in terms]
         for et in self.energies:
             if et not in Forces.terms:
                 raise ValueError(f"Force term {et} is not implemented.")
 
-        if "1-4" in self.energies and not "dihedrals" in self.energies:
+        if "1-4" in self.energies and "dihedrals" not in self.energies:
             raise RuntimeError(
                 "You cannot enable 1-4 interactions without enabling dihedrals"
             )
@@ -328,7 +322,10 @@ class Forces:
             forces[:] = -torch.autograd.grad(
                 enesum, pos, only_inputs=True, retain_graph=True
             )[0]
-            return enesum
+            if returnDetails:
+                return pot
+            else:
+                return [torch.sum(torch.cat(list(pp.values()))) for pp in pot]
 
         if returnDetails:
             return [{k: v.cpu().item() for k, v in pp.items()} for pp in pot]
@@ -363,7 +360,7 @@ def calculate_distances(atom_pos, atom_idx, box):
 
 
 ELEC_FACTOR = 1 / (4 * const.pi * const.epsilon_0)  # Coulomb's constant
-ELEC_FACTOR *= const.elementary_charge ** 2  # Convert elementary charges to Coulombs
+ELEC_FACTOR *= const.elementary_charge**2  # Convert elementary charges to Coulombs
 ELEC_FACTOR /= const.angstrom  # Convert Angstroms to meters
 ELEC_FACTOR *= const.Avogadro / (const.kilo * const.calorie)  # Convert J to kcal/mol
 
@@ -383,7 +380,7 @@ def evaluate_LJ_internal(
     force = None
 
     rinv1 = 1 / dist
-    rinv6 = rinv1 ** 6
+    rinv6 = rinv1**6
     rinv12 = rinv6 * rinv6
 
     pot = ((aa * rinv12) - (bb * rinv6)) / scale
@@ -414,7 +411,7 @@ def evaluate_repulsion(
     aa = A[atomtype_indices[:, 0], atomtype_indices[:, 1]]
 
     rinv1 = 1 / dist
-    rinv6 = rinv1 ** 6
+    rinv6 = rinv1**6
     rinv12 = rinv6 * rinv6
 
     pot = (aa * rinv12) / scale
@@ -432,7 +429,7 @@ def evaluate_repulsion_CG(
     coef = B[atomtype_indices[:, 0], atomtype_indices[:, 1]]
 
     rinv1 = 1 / dist
-    rinv6 = rinv1 ** 6
+    rinv6 = rinv1**6
 
     pot = (coef * rinv6) / scale
     if explicit_forces:
@@ -456,7 +453,7 @@ def evaluate_electrostatics(
         # Ilario G. Tironi, René Sperb, Paul E. Smith, and Wilfred F. van Gunsteren. A generalized reaction field method
         # for molecular dynamics simulations. Journal of Chemical Physics, 102(13):5451–5459, 1995.
         denom = (2 * solventDielectric) + 1
-        krf = (1 / cutoff ** 3) * (solventDielectric - 1) / denom
+        krf = (1 / cutoff**3) * (solventDielectric - 1) / denom
         crf = (1 / cutoff) * (3 * solventDielectric) / denom
         common = (
             ELEC_FACTOR
@@ -464,7 +461,7 @@ def evaluate_electrostatics(
             * atom_charges[pair_indeces[:, 1]]
             / scale
         )
-        dist2 = dist ** 2
+        dist2 = dist**2
         pot = common * ((1 / dist) + krf * dist2 - crf)
         if explicit_forces:
             force = common * (2 * krf * dist - 1 / dist2)
@@ -487,7 +484,7 @@ def evaluate_bonds(dist, bond_params, explicit_forces=True):
     k0 = bond_params[:, 0]
     d0 = bond_params[:, 1]
     x = dist - d0
-    pot = k0 * (x ** 2)
+    pot = k0 * (x**2)
     if explicit_forces:
         force = 2 * k0 * x
     return pot, force
@@ -563,7 +560,7 @@ def evaluate_torsion(r12, r23, r34, torsion_params, explicit_forces=True):
             angleDiff = phi[idx] - phi0
             angleDiff[angleDiff < -pi] = angleDiff[angleDiff < -pi] + 2 * pi
             angleDiff[angleDiff > pi] = angleDiff[angleDiff > pi] - 2 * pi
-            pot.scatter_add_(0, idx, k0 * angleDiff ** 2)
+            pot.scatter_add_(0, idx, k0 * angleDiff**2)
             if explicit_forces:
                 coeff.scatter_add_(0, idx, 2 * k0 * angleDiff)
 
@@ -573,11 +570,11 @@ def evaluate_torsion(r12, r23, r34, torsion_params, explicit_forces=True):
     if explicit_forces:
         # Taken from OpenMM
         normDelta2 = torch.norm(r23, dim=1)
-        norm2Delta2 = normDelta2 ** 2
-        forceFactor0 = (-coeff * normDelta2) / (normA ** 2)
+        norm2Delta2 = normDelta2**2
+        forceFactor0 = (-coeff * normDelta2) / (normA**2)
         forceFactor1 = torch.sum(r12 * r23, dim=1) / norm2Delta2
         forceFactor2 = torch.sum(r34 * r23, dim=1) / norm2Delta2
-        forceFactor3 = (coeff * normDelta2) / (normB ** 2)
+        forceFactor3 = (coeff * normDelta2) / (normB**2)
 
         force0vec = forceFactor0.unsqueeze(1) * crossA
         force3vec = forceFactor3.unsqueeze(1) * crossB

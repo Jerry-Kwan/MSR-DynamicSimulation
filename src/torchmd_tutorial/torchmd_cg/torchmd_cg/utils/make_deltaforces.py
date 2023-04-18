@@ -16,7 +16,8 @@ def make_deltaforces(
     psf,
     exclusions=("bonds"),
     device="cpu",
-    forceterms=["Bonds", "Angles", "RepulsionCG"],
+    parameters_forceterms=["Bonds", "Angles", "RepulsionCG"],
+    forces_forceterms=["Bonds", "Angles", "RepulsionCG"],
 ):
     device = torch.device(device)
     precision = torch.double
@@ -65,14 +66,14 @@ def make_deltaforces(
     box_full = torch.zeros(3, replicas)
 
     ff = ForceField.create(mol, forcefield)
-    parameters = Parameters(ff, mol, forceterms, precision=precision, device=device)
+    parameters = Parameters(ff, mol, parameters_forceterms, precision=precision, device=device)
 
     system = System(natoms, replicas, precision, device)
     system.set_positions(atom_pos)
     system.set_box(box_full)
     system.set_velocities(atom_vel)
 
-    forces = Forces(parameters, terms=forceterms, exclusions=exclusions)
+    forces = Forces(parameters, terms=forces_forceterms, exclusions=exclusions)
 
     print("Producing delta forces")
     prior_forces = []

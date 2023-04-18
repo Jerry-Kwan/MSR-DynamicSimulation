@@ -5,6 +5,9 @@ import numpy as np
 def minimize_bfgs(system, forces, fmax=0.5, steps=1000):
     from scipy.optimize import minimize
 
+    if steps == 0:
+        return
+
     if system.pos.shape[0] != 1:
         raise RuntimeError(
             "System minimization currently doesn't support replicas. Talk with Stefan to implement it."
@@ -46,17 +49,23 @@ def minimize_bfgs(system, forces, fmax=0.5, steps=1000):
 
 
 def minimize_pytorch_bfgs(system, forces, steps=1000):
+    if steps == 0:
+        return
+
     pos = system.pos.detach().requires_grad_(True)
     opt = torch.optim.LBFGS([pos], max_iter=steps, tolerance_change=1e-09)
 
     def closure(step):
         opt.zero_grad()
-        Epot = forces.compute(pos, system.box, system.forces, explicit_forces=False)
-        Epot.backward()
-        maxforce = float(torch.max(torch.norm(pos.grad, dim=1)))
-        print("{0:4d}   {1: 3.6f}   {2: 3.6f}".format(step[0], float(Epot), maxforce))
+        Epot = forces.compute(
+            pos, system.box, system.forces, explicit_forces=False, returnDetails=False
+        )
+        Etot = torch.sum(torch.cat(Epot))
+        grad = -system.forces.detach().cpu().numpy().astype(np.float64)[0]
+        maxforce = float(torch.max(torch.norm(grad, dim=1)))
+        print("{0:4d}   {1: 3.6f}   {2: 3.6f}".format(step[0], float(Etot), maxforce))
         step[0] += 1
-        return Epot
+        return Etot
 
     print("{0:4s} {1:9s}       {2:9s}".format("Iter", " Epot", " fmax"))
     step = [0]

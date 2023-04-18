@@ -1,6 +1,8 @@
 name: torchmd-cg
 channels:
   - conda-forge
+  - pytorch
+  - nvidia
   - acellera
 dependencies:
   - h5py
@@ -13,16 +15,19 @@ dependencies:
   - pandas
   - jupyter
   - matplotlib
+  - parmed
+  - tqdm
+  - networkx
   - nnpops==0.2
-  - pip
+  # conda does not contain torch, only pytorch
   - pytorch==1.11.0
+  - pytorch-cuda==11.7
   - pytorch_cluster==1.5.9
   - pytorch_geometric==2.0.3
   - pytorch_scatter==2.0.8
   - pytorch_sparse==0.6.10
   - pytorch-lightning==1.6.3
   - torchmetrics==0.8.2
-  - tqdm
   # Dev tools
   - flake8
   - pytest

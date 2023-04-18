@@ -69,9 +69,12 @@ forcefield = f'{path2}/chignolin_priors.yaml'
 psf = f'{path2}/chignolin_ca_top.psf'
 exclusions = ('bonds')
 device = 'cpu'
-forceterms = ['Bonds', 'RepulsionCG']
+# forceterms = ['Bonds', 'RepulsionCG']
+parameters_forceterms = ['Bonds', 'RepulsionCG', 'lj']
+forces_forceterms = ['Bonds', 'RepulsionCG']
 
-make_deltaforces(coords_npz, forces_npz, delta_forces_npz, forcefield, psf, exclusions, device, forceterms)
+make_deltaforces(coords_npz, forces_npz, delta_forces_npz, forcefield, psf, exclusions, device,
+                 parameters_forceterms=parameters_forceterms, forces_forceterms=forces_forceterms)
 
 AA2INT = {
     'ALA': 1,

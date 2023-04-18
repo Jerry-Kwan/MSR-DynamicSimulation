@@ -7,11 +7,10 @@ __pycache__/
 tmp*
 
 # docs
-notes_dynamics_simulation.md
-docs/imgs/
+my_notes/
 paper/
+private/
 snapshot/
-application/
 
 # src
 Mambaforge-Linux-x86_64.sh

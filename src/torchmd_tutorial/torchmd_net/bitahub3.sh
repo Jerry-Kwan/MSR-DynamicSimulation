@@ -2,7 +2,7 @@
 bash Mambaforge-Linux-x86_64.sh # install under /root, and remember init
 source ~/.bashrc
 
-# environment.yml is under my_torchmd_net
+# environment.yml is under torchmd_tutorial/torchmd_net
 mamba env create -f environment.yml
 mamba activate torchmd-net
 

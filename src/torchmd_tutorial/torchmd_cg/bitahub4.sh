@@ -6,11 +6,8 @@ source ~/.bashrc
 mamba env create -f environment2.yml
 mamba activate torchmd-cg
 
-# under my_torchmd_net
+# under torchmd_tutorial/torchmd_net
 pip install -e .
-
-# other
-pip install parmed
 
 # My way to install torchmd-cg, not use `pip install torchmd-cg`.
 # Modify setup.py in torchmd_cg/ to eliminate requirements.txt in torchmd_cg/,
@@ -19,7 +16,7 @@ pip install parmed
 # Installing torchmd by `pip install torchmd` will install torchvision and torch,
 # which doesn't work.
 # So install torchmd (modified by myself) by `pip install -e .`.
-# Under torchmd_cg
+# Under torchmd_tutorial/torchmd_cg
 pip install -e .
-cd torchmd_pypi20230403_modified
+cd torchmd_pypi20230416_modified
 pip install -e .
