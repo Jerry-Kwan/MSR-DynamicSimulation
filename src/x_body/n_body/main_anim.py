@@ -1,140 +1,120 @@
-# Import scipy
-import scipy as sci
+import argparse
 import numpy as np
-
-# Import matplotlib and associated modules for 3D and animations
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
-# Define universal gravitation constant
-G = 6.67408e-11  # Nm2 / kg2
-
-# Reference quantities
-m_nd = 1.989e+30  # kg, mass of the sun
-r_nd = 5.326e+12  # m, distance between stars in Alpha Centauri
-v_nd = 30000      # m / s, relative velocity of earth around the sun
-t_nd = 79.91 * 365 * 24 * 3600 * 0.51  # s, orbital period of Alpha Centauri
-
-# Net constants
-K1 = G * t_nd * m_nd / (r_nd**2 * v_nd)
-K2 = v_nd * t_nd / r_nd
-
-# Define the number of particles
-N_PARTICLES = 6
-
-# Define softening
-# softening = 0.1
-softening = 0.1
-
-# Define masses
-mass = np.random.uniform(0.8, 1.2, (N_PARTICLES, 1))
-# mass = np.array([[1.1], [0.907], [1.0]])
-print(mass)
-print()
-
-# Define initial position and velocity
-init_pos = np.random.randn(N_PARTICLES, 3)
-init_vel = np.random.randn(N_PARTICLES, 3) * 0.05
-# init_pos = np.array([
-#     [-0.5, 0, 0],
-#     [0.5, 0, 0],
-#     [0, 1., 0]
-# ])
-# init_vel = np.array([
-#     [0.01, 0.01, 0],
-#     [-0.05, 0, -0.1],
-#     [0, -0.01, 0]
-# ])
-print(init_pos[:2, :])
-print(init_vel[:2, :])
-print()
+from integrator import euler, modified_euler, leapfrog, scipy_integrator
 
 
-def NBodyEquations(w, t, G, mass, softening):
-    drbydt = K2 * w[3 * N_PARTICLES:]
+def get_args():
+    parser = argparse.ArgumentParser(description='N-Body Simulation')
+    parser.add_argument('--seed', type=int, default=1, help='random seed (default: 1)')
+    parser.add_argument('--num-particles', default=3, type=int, help='number of particles')
+    parser.add_argument('--softening', type=float, default=0.1, help='softening')
+    parser.add_argument('--num-samples', default=500, type=int, help='number of samples')
+    parser.add_argument('--t-begin', type=float, default=0.0, help='begining time')
+    parser.add_argument('--t-end', type=float, default=20.0, help='end time')
+    parser.add_argument('--integrator',
+                        type=str,
+                        default='leapfrog',
+                        choices=['euler', 'modified_euler', 'leapfrog', 'scipy'],
+                        help='which integrator to use')
+    parser.add_argument('--num-tail', default=50, type=int, help='number of particles in tail in animation')
+    parser.add_argument('--interval', default=30, type=int, help='delay between frames in milliseconds')
 
-    pos = w[:3 * N_PARTICLES].reshape(N_PARTICLES, 3)
-
-    x = pos[:, 0:1]
-    y = pos[:, 1:2]
-    z = pos[:, 2:3]
-
-    dx = x.T - x
-    dy = y.T - y
-    dz = z.T - z
-
-    inv_r3 = (dx**2 + dy**2 + dz**2 + softening**2)
-    inv_r3[inv_r3 > 0] = inv_r3[inv_r3 > 0]**(-1.5)
-
-    ax = K1 * (dx * inv_r3) @ mass
-    ay = K1 * (dy * inv_r3) @ mass
-    az = K1 * (dz * inv_r3) @ mass
-
-    dvbydt = np.hstack((ax, ay, az)).flatten()
-
-    return np.concatenate((drbydt, dvbydt))
+    return parser.parse_args()
 
 
-# Package initial parameters
-N_SAMPLES = 500
-T_END = 20
-init_params = np.array([init_pos, init_vel]).flatten()
-time_span = np.linspace(0, T_END, N_SAMPLES)
+if __name__ == '__main__':
+    args = get_args()
+    np.random.seed(args.seed)
 
-n_body_sol = sci.integrate.odeint(NBodyEquations, init_params, time_span, args=(G, mass, softening))
+    # used for debug
+    # mass = np.array([[1.1], [0.907], [1.0]])
+    mass = np.random.uniform(0.8, 1.2, (args.num_particles, 1))
+    print(mass, end='\n\n')
 
-pos_sol = n_body_sol[:, :3 * N_PARTICLES].reshape(-1, N_PARTICLES, 3)
-vel_sol = n_body_sol[:, 3 * N_PARTICLES:].reshape(-1, N_PARTICLES, 3)
-print(pos_sol[0, :2, :])
-print(vel_sol[0, :2, :])
+    init_pos = np.random.randn(args.num_particles, 3)
+    init_vel = np.random.randn(args.num_particles, 3) * 0.05
+    # used for debug
+    # init_pos = np.array([
+    #     [-0.5, 0, 0],
+    #     [0.5, 0, 0],
+    #     [0, 1., 0]
+    # ])
+    # init_vel = np.array([
+    #     [0.01, 0.01, 0],
+    #     [-0.05, 0, -0.1],
+    #     [0, -0.01, 0]
+    # ])
+    print(init_pos[:2, :])
+    print(init_vel[:2, :], end='\n\n')
 
-fig = plt.figure()
-
-ax = fig.add_subplot(111, projection="3d")
-ax.set_xlabel("x-coordinate")
-ax.set_ylabel("y-coordinate")
-ax.set_zlabel("z-coordinate")
-ax.set_title("Visualization of orbits of stars in a n-bodysystem\n")
-
-tra = [ax.plot([], [], [], color='darkblue')[0] for i in range(N_PARTICLES)]
-p = [ax.plot([], [], [], color='darkblue', marker="o")[0] for i in range(N_PARTICLES)]
-
-ax.set_xlim([-3, 3])
-ax.set_ylim([-3, 3])
-ax.set_zlim([-3, 3])
-
-
-def init():
-    for i in range(N_PARTICLES):
-        tra[i].set_data([], [])
-        tra[i].set_3d_properties([], 'z')
-        p[i].set_data([], [])
-        p[i].set_3d_properties([], 'z')
-
-    return tra + p
-
-
-# Define the number of tail
-N_TAIL = 50
-
-
-def animate(i):
-    for j in range(N_PARTICLES):
-        p[j].set_data([pos_sol[i - 1, j, 0]], [pos_sol[i - 1, j, 1]])
-        p[j].set_3d_properties(pos_sol[i - 1, j, 2], 'z')
-
-    if i <= 50:
-        for j in range(N_PARTICLES):
-            tra[j].set_data(pos_sol[:i, j, 0], pos_sol[:i, j, 1])
-            tra[j].set_3d_properties(pos_sol[:i, j, 2], 'z')
+    if args.integrator == 'euler':
+        pos_sol, vel_sol = euler(args, mass, init_pos, init_vel)
+    elif args.integrator == 'modified_euler':
+        pos_sol, vel_sol = modified_euler(args, mass, init_pos, init_vel)
+    elif args.integrator == 'leapfrog':
+        pos_sol, vel_sol = leapfrog(args, mass, init_pos, init_vel)
     else:
-        for j in range(N_PARTICLES):
-            tra[j].set_data(pos_sol[i - N_TAIL:i, j, 0], pos_sol[i - N_TAIL:i, j, 1])
-            tra[j].set_3d_properties(pos_sol[i - N_TAIL:i, j, 2], 'z')
+        pos_sol, vel_sol = scipy_integrator(args, mass, init_pos, init_vel)
 
-    return tra + p
+    print(pos_sol[0, :2, :])
+    print(vel_sol[0, :2, :])
+    print(pos_sol.shape, vel_sol.shape)
+    print(pos_sol[-2:, :2, :], end='\n\n')
 
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection="3d")
+    ax.set_xlabel('x-coordinate')
+    ax.set_ylabel('y-coordinate')
+    ax.set_zlabel('z-coordinate')
+    ax.set_title(f'Visualization of orbits of stars in a n-bodysystem\n(with {args.integrator} integrator)')
 
-anim = FuncAnimation(fig, animate, init_func=init, frames=list(range(1, N_SAMPLES + 1)), blit=True, interval=30)
+    color_choices = ['darkblue', 'tab:red', 'green',
+                     'tab:cyan', 'tab:brown', 'tab:olive',
+                     'tab:orange', 'tab:pink']
 
-plt.show()
+    if args.num_particles > 8:
+        tra = [ax.plot([], [], [], color='darkblue')[0] for i in range(args.num_particles)]
+        p = [ax.plot([], [], [], color='darkblue', marker="o")[0] for i in range(args.num_particles)]
+    else:
+        tra = [ax.plot([], [], [], color=color_choices[i])[0] for i in range(args.num_particles)]
+        p = [ax.plot([], [], [], color=color_choices[i], marker="o")[0] for i in range(args.num_particles)]
+
+    ax.set_xlim([-3, 3])
+    ax.set_ylim([-3, 3])
+    ax.set_zlim([-3, 3])
+
+    def init():
+        for i in range(args.num_particles):
+            tra[i].set_data([], [])
+            tra[i].set_3d_properties([], 'z')
+            p[i].set_data([], [])
+            p[i].set_3d_properties([], 'z')
+
+        return tra + p
+
+    def animate(i):
+        for j in range(args.num_particles):
+            p[j].set_data([pos_sol[i - 1, j, 0]], [pos_sol[i - 1, j, 1]])
+            p[j].set_3d_properties(pos_sol[i - 1, j, 2], 'z')
+
+        if i <= 50:
+            for j in range(args.num_particles):
+                tra[j].set_data(pos_sol[:i, j, 0], pos_sol[:i, j, 1])
+                tra[j].set_3d_properties(pos_sol[:i, j, 2], 'z')
+        else:
+            for j in range(args.num_particles):
+                tra[j].set_data(pos_sol[i - args.num_tail:i, j, 0], pos_sol[i - args.num_tail:i, j, 1])
+                tra[j].set_3d_properties(pos_sol[i - args.num_tail:i, j, 2], 'z')
+
+        return tra + p
+
+    anim = FuncAnimation(fig,
+                         animate,
+                         init_func=init,
+                         frames=list(range(1, args.num_samples + 1)),
+                         blit=True,
+                         interval=args.interval)
+    plt.show()
