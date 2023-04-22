@@ -1,3 +1,8 @@
+"""
+Reference:
+    https://sgugger.github.io/a-simple-neural-net-in-numpy.html
+"""
+
 import numpy as np
 
 
