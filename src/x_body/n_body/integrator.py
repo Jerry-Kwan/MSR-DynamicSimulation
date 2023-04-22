@@ -16,14 +16,17 @@ K2 = v_nd * t_nd / r_nd
 
 
 def get_acc(args, pos, mass):
+    """Get acceleration."""
     x = pos[:, 0:1]
     y = pos[:, 1:2]
     z = pos[:, 2:3]
 
+    # calculate r_j - r_i
     dx = x.T - x
     dy = y.T - y
     dz = z.T - z
 
+    # calculate 1/r^3
     inv_r3 = (dx**2 + dy**2 + dz**2 + args.softening**2)
     inv_r3[inv_r3 > 0] = inv_r3[inv_r3 > 0]**(-1.5)
 

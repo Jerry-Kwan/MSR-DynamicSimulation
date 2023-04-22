@@ -100,7 +100,8 @@ if __name__ == '__main__':
             p[j].set_data([pos_sol[i - 1, j, 0]], [pos_sol[i - 1, j, 1]])
             p[j].set_3d_properties(pos_sol[i - 1, j, 2], 'z')
 
-        if i <= 50:
+        # draw the tails
+        if i <= args.num_tail:
             for j in range(args.num_particles):
                 tra[j].set_data(pos_sol[:i, j, 0], pos_sol[:i, j, 1])
                 tra[j].set_3d_properties(pos_sol[:i, j, 2], 'z')

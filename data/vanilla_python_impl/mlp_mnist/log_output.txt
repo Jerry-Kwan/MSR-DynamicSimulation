@@ -1,0 +1,409 @@
+platform: bitahub cpu_5118 8 cores
+cmd: python main.py --dataset-root /data/JerryKwan/mnist --save-root /output --num-hidden-layers 3 --layer-size 784 400 200 100 10
+
+Curve chart (named curve.png) of this training is under the same directory in which this file (log_output.txt) is located.
+
+-----------------------------------------
+
+Linear(784, 400) -> Relu() -> Linear(400, 200) -> Relu() -> Linear(200, 100) -> Relu() -> Linear(100, 10) -> Softmax() -> CrossEntropy()
+
+[Epoch 1/100] training
+[Epoch 1/100] total_mean_loss = 11.403767868094834
+[Epoch 1/100] testing
+[Epoch 1/100] test_accuracy = 0.45102163461538464
+[Epoch 2/100] training
+[Epoch 2/100] total_mean_loss = 7.958491465192572
+[Epoch 2/100] testing
+[Epoch 2/100] test_accuracy = 0.6143830128205128
+[Epoch 3/100] training
+[Epoch 3/100] total_mean_loss = 6.315931817778651
+[Epoch 3/100] testing
+[Epoch 3/100] test_accuracy = 0.6608573717948718
+[Epoch 4/100] training
+[Epoch 4/100] total_mean_loss = 5.764848804732056
+[Epoch 4/100] testing
+[Epoch 4/100] test_accuracy = 0.6828926282051282
+[Epoch 5/100] training
+[Epoch 5/100] total_mean_loss = 5.439577257322939
+[Epoch 5/100] testing
+[Epoch 5/100] test_accuracy = 0.6974158653846154
+[Epoch 6/100] training
+[Epoch 6/100] total_mean_loss = 5.2210669226788005
+[Epoch 6/100] testing
+[Epoch 6/100] test_accuracy = 0.7052283653846154
+[Epoch 7/100] training
+[Epoch 7/100] total_mean_loss = 5.089449088149174
+[Epoch 7/100] testing
+[Epoch 7/100] test_accuracy = 0.7112379807692307
+[Epoch 8/100] training
+[Epoch 8/100] total_mean_loss = 4.625727829385029
+[Epoch 8/100] testing
+[Epoch 8/100] test_accuracy = 0.7595152243589743
+[Epoch 9/100] training
+[Epoch 9/100] total_mean_loss = 3.8395334605200726
+[Epoch 9/100] testing
+[Epoch 9/100] test_accuracy = 0.7855568910256411
+[Epoch 10/100] training
+[Epoch 10/100] total_mean_loss = 3.542274091504408
+[Epoch 10/100] testing
+[Epoch 10/100] test_accuracy = 0.793770032051282
+[Epoch 11/100] training
+[Epoch 11/100] total_mean_loss = 3.3898204943709898
+[Epoch 11/100] testing
+[Epoch 11/100] test_accuracy = 0.8005809294871795
+[Epoch 12/100] training
+[Epoch 12/100] total_mean_loss = 3.28333501169203
+[Epoch 12/100] testing
+[Epoch 12/100] test_accuracy = 0.8041866987179487
+[Epoch 13/100] training
+[Epoch 13/100] total_mean_loss = 3.2051125911014693
+[Epoch 13/100] testing
+[Epoch 13/100] test_accuracy = 0.8062900641025641
+[Epoch 14/100] training
+[Epoch 14/100] total_mean_loss = 3.1403105192308924
+[Epoch 14/100] testing
+[Epoch 14/100] test_accuracy = 0.8097956730769231
+[Epoch 15/100] training
+[Epoch 15/100] total_mean_loss = 3.079073409577155
+[Epoch 15/100] testing
+[Epoch 15/100] test_accuracy = 0.8125
+[Epoch 16/100] training
+[Epoch 16/100] total_mean_loss = 3.0370024757531904
+[Epoch 16/100] testing
+[Epoch 16/100] test_accuracy = 0.8135016025641025
+[Epoch 17/100] training
+[Epoch 17/100] total_mean_loss = 3.001623393280048
+[Epoch 17/100] testing
+[Epoch 17/100] test_accuracy = 0.8175080128205128
+[Epoch 18/100] training
+[Epoch 18/100] total_mean_loss = 2.9642106573138944
+[Epoch 18/100] testing
+[Epoch 18/100] test_accuracy = 0.8181089743589743
+[Epoch 19/100] training
+[Epoch 19/100] total_mean_loss = 2.933687428855597
+[Epoch 19/100] testing
+[Epoch 19/100] test_accuracy = 0.8194110576923077
+[Epoch 20/100] training
+[Epoch 20/100] total_mean_loss = 2.908922820022886
+[Epoch 20/100] testing
+[Epoch 20/100] test_accuracy = 0.8185096153846154
+[Epoch 21/100] training
+[Epoch 21/100] total_mean_loss = 2.888013415936306
+[Epoch 21/100] testing
+[Epoch 21/100] test_accuracy = 0.8225160256410257
+[Epoch 22/100] training
+[Epoch 22/100] total_mean_loss = 2.864781257696709
+[Epoch 22/100] testing
+[Epoch 22/100] test_accuracy = 0.8225160256410257
+[Epoch 23/100] training
+[Epoch 23/100] total_mean_loss = 2.846825567676216
+[Epoch 23/100] testing
+[Epoch 23/100] test_accuracy = 0.8237179487179487
+[Epoch 24/100] training
+[Epoch 24/100] total_mean_loss = 2.8268542070729263
+[Epoch 24/100] testing
+[Epoch 24/100] test_accuracy = 0.8241185897435898
+[Epoch 25/100] training
+[Epoch 25/100] total_mean_loss = 2.8123249311962275
+[Epoch 25/100] testing
+[Epoch 25/100] test_accuracy = 0.8251201923076923
+[Epoch 26/100] training
+[Epoch 26/100] total_mean_loss = 2.801809202676788
+[Epoch 26/100] testing
+[Epoch 26/100] test_accuracy = 0.8248197115384616
+[Epoch 27/100] training
+[Epoch 27/100] total_mean_loss = 2.780280831814681
+[Epoch 27/100] testing
+[Epoch 27/100] test_accuracy = 0.8248197115384616
+[Epoch 28/100] training
+[Epoch 28/100] total_mean_loss = 2.7672057027223533
+[Epoch 28/100] testing
+[Epoch 28/100] test_accuracy = 0.8255208333333334
+[Epoch 29/100] training
+[Epoch 29/100] total_mean_loss = 2.756130804029891
+[Epoch 29/100] testing
+[Epoch 29/100] test_accuracy = 0.8259214743589743
+[Epoch 30/100] training
+[Epoch 30/100] total_mean_loss = 2.743988720086368
+[Epoch 30/100] testing
+[Epoch 30/100] test_accuracy = 0.8265224358974359
+[Epoch 31/100] training
+[Epoch 31/100] total_mean_loss = 2.7311366717598125
+[Epoch 31/100] testing
+[Epoch 31/100] test_accuracy = 0.827323717948718
+[Epoch 32/100] training
+[Epoch 32/100] total_mean_loss = 2.7226276141156083
+[Epoch 32/100] testing
+[Epoch 32/100] test_accuracy = 0.8271233974358975
+[Epoch 33/100] training
+[Epoch 33/100] total_mean_loss = 2.7112753558575564
+[Epoch 33/100] testing
+[Epoch 33/100] test_accuracy = 0.8280248397435898
+[Epoch 34/100] training
+[Epoch 34/100] total_mean_loss = 2.702913531740674
+[Epoch 34/100] testing
+[Epoch 34/100] test_accuracy = 0.8283253205128205
+[Epoch 35/100] training
+[Epoch 35/100] total_mean_loss = 2.6930822873217415
+[Epoch 35/100] testing
+[Epoch 35/100] test_accuracy = 0.8291266025641025
+[Epoch 36/100] training
+[Epoch 36/100] total_mean_loss = 2.687261843283734
+[Epoch 36/100] testing
+[Epoch 36/100] test_accuracy = 0.8292267628205128
+[Epoch 37/100] training
+[Epoch 37/100] total_mean_loss = 2.680665974961033
+[Epoch 37/100] testing
+[Epoch 37/100] test_accuracy = 0.8298277243589743
+[Epoch 38/100] training
+[Epoch 38/100] total_mean_loss = 2.6717959022684306
+[Epoch 38/100] testing
+[Epoch 38/100] test_accuracy = 0.8313301282051282
+[Epoch 39/100] training
+[Epoch 39/100] total_mean_loss = 2.66359158092558
+[Epoch 39/100] testing
+[Epoch 39/100] test_accuracy = 0.8317307692307693
+[Epoch 40/100] training
+[Epoch 40/100] total_mean_loss = 2.657682499950047
+[Epoch 40/100] testing
+[Epoch 40/100] test_accuracy = 0.8313301282051282
+[Epoch 41/100] training
+[Epoch 41/100] total_mean_loss = 2.652699165040635
+[Epoch 41/100] testing
+[Epoch 41/100] test_accuracy = 0.8316306089743589
+[Epoch 42/100] training
+[Epoch 42/100] total_mean_loss = 2.6447946905574082
+[Epoch 42/100] testing
+[Epoch 42/100] test_accuracy = 0.83203125
+[Epoch 43/100] training
+[Epoch 43/100] total_mean_loss = 2.6376134421798754
+[Epoch 43/100] testing
+[Epoch 43/100] test_accuracy = 0.8319310897435898
+[Epoch 44/100] training
+[Epoch 44/100] total_mean_loss = 2.633864726626433
+[Epoch 44/100] testing
+[Epoch 44/100] test_accuracy = 0.8326322115384616
+[Epoch 45/100] training
+[Epoch 45/100] total_mean_loss = 2.6308802286688837
+[Epoch 45/100] testing
+[Epoch 45/100] test_accuracy = 0.8324318910256411
+[Epoch 46/100] training
+[Epoch 46/100] total_mean_loss = 2.6237622261033255
+[Epoch 46/100] testing
+[Epoch 46/100] test_accuracy = 0.8327323717948718
+[Epoch 47/100] training
+[Epoch 47/100] total_mean_loss = 2.6216736145885964
+[Epoch 47/100] testing
+[Epoch 47/100] test_accuracy = 0.8333333333333334
+[Epoch 48/100] training
+[Epoch 48/100] total_mean_loss = 2.6182550140196312
+[Epoch 48/100] testing
+[Epoch 48/100] test_accuracy = 0.8331330128205128
+[Epoch 49/100] training
+[Epoch 49/100] total_mean_loss = 2.616451481835201
+[Epoch 49/100] testing
+[Epoch 49/100] test_accuracy = 0.832832532051282
+[Epoch 50/100] training
+[Epoch 50/100] total_mean_loss = 2.6100984012808537
+[Epoch 50/100] testing
+[Epoch 50/100] test_accuracy = 0.8333333333333334
+[Epoch 51/100] training
+[Epoch 51/100] total_mean_loss = 2.608320040824475
+[Epoch 51/100] testing
+[Epoch 51/100] test_accuracy = 0.832832532051282
+[Epoch 52/100] training
+[Epoch 52/100] total_mean_loss = 2.606329007360669
+[Epoch 52/100] testing
+[Epoch 52/100] test_accuracy = 0.8333333333333334
+[Epoch 53/100] training
+[Epoch 53/100] total_mean_loss = 2.6017838247009704
+[Epoch 53/100] testing
+[Epoch 53/100] test_accuracy = 0.8337339743589743
+[Epoch 54/100] training
+[Epoch 54/100] total_mean_loss = 2.5968628304187984
+[Epoch 54/100] testing
+[Epoch 54/100] test_accuracy = 0.8339342948717948
+[Epoch 55/100] training
+[Epoch 55/100] total_mean_loss = 2.5949341511060924
+[Epoch 55/100] testing
+[Epoch 55/100] test_accuracy = 0.8338341346153846
+[Epoch 56/100] training
+[Epoch 56/100] total_mean_loss = 2.5909485693093703
+[Epoch 56/100] testing
+[Epoch 56/100] test_accuracy = 0.8339342948717948
+[Epoch 57/100] training
+[Epoch 57/100] total_mean_loss = 2.5869194870154444
+[Epoch 57/100] testing
+[Epoch 57/100] test_accuracy = 0.8342347756410257
+[Epoch 58/100] training
+[Epoch 58/100] total_mean_loss = 2.5858581464434813
+[Epoch 58/100] testing
+[Epoch 58/100] test_accuracy = 0.8334334935897436
+[Epoch 59/100] training
+[Epoch 59/100] total_mean_loss = 2.5801777033991615
+[Epoch 59/100] testing
+[Epoch 59/100] test_accuracy = 0.8337339743589743
+[Epoch 60/100] training
+[Epoch 60/100] total_mean_loss = 2.5774664090971338
+[Epoch 60/100] testing
+[Epoch 60/100] test_accuracy = 0.8342347756410257
+[Epoch 61/100] training
+[Epoch 61/100] total_mean_loss = 2.5736652500644146
+[Epoch 61/100] testing
+[Epoch 61/100] test_accuracy = 0.8341346153846154
+[Epoch 62/100] training
+[Epoch 62/100] total_mean_loss = 2.5715386888541323
+[Epoch 62/100] testing
+[Epoch 62/100] test_accuracy = 0.8347355769230769
+[Epoch 63/100] training
+[Epoch 63/100] total_mean_loss = 2.566611481319976
+[Epoch 63/100] testing
+[Epoch 63/100] test_accuracy = 0.8343349358974359
+[Epoch 64/100] training
+[Epoch 64/100] total_mean_loss = 2.56499935173352
+[Epoch 64/100] testing
+[Epoch 64/100] test_accuracy = 0.8343349358974359
+[Epoch 65/100] training
+[Epoch 65/100] total_mean_loss = 2.5643875607406947
+[Epoch 65/100] testing
+[Epoch 65/100] test_accuracy = 0.8345352564102564
+[Epoch 66/100] training
+[Epoch 66/100] total_mean_loss = 2.562598208803136
+[Epoch 66/100] testing
+[Epoch 66/100] test_accuracy = 0.8349358974358975
+[Epoch 67/100] training
+[Epoch 67/100] total_mean_loss = 2.560187037287148
+[Epoch 67/100] testing
+[Epoch 67/100] test_accuracy = 0.8345352564102564
+[Epoch 68/100] training
+[Epoch 68/100] total_mean_loss = 2.557040295045445
+[Epoch 68/100] testing
+[Epoch 68/100] test_accuracy = 0.8347355769230769
+[Epoch 69/100] training
+[Epoch 69/100] total_mean_loss = 2.5560550054764763
+[Epoch 69/100] testing
+[Epoch 69/100] test_accuracy = 0.8346354166666666
+[Epoch 70/100] training
+[Epoch 70/100] total_mean_loss = 2.553347106715462
+[Epoch 70/100] testing
+[Epoch 70/100] test_accuracy = 0.8347355769230769
+[Epoch 71/100] training
+[Epoch 71/100] total_mean_loss = 2.555964450077459
+[Epoch 71/100] testing
+[Epoch 71/100] test_accuracy = 0.8347355769230769
+[Epoch 72/100] training
+[Epoch 72/100] total_mean_loss = 2.5541931239294726
+[Epoch 72/100] testing
+[Epoch 72/100] test_accuracy = 0.8347355769230769
+[Epoch 73/100] training
+[Epoch 73/100] total_mean_loss = 2.553498334019495
+[Epoch 73/100] testing
+[Epoch 73/100] test_accuracy = 0.835136217948718
+[Epoch 74/100] training
+[Epoch 74/100] total_mean_loss = 2.5538449796162035
+[Epoch 74/100] testing
+[Epoch 74/100] test_accuracy = 0.8348357371794872
+[Epoch 75/100] training
+[Epoch 75/100] total_mean_loss = 2.5512355226652255
+[Epoch 75/100] testing
+[Epoch 75/100] test_accuracy = 0.8348357371794872
+[Epoch 76/100] training
+[Epoch 76/100] total_mean_loss = 2.5512497796241056
+[Epoch 76/100] testing
+[Epoch 76/100] test_accuracy = 0.8348357371794872
+[Epoch 77/100] training
+[Epoch 77/100] total_mean_loss = 2.5508320075786517
+[Epoch 77/100] testing
+[Epoch 77/100] test_accuracy = 0.8353365384615384
+[Epoch 78/100] training
+[Epoch 78/100] total_mean_loss = 2.547869712368656
+[Epoch 78/100] testing
+[Epoch 78/100] test_accuracy = 0.8344350961538461
+[Epoch 79/100] training
+[Epoch 79/100] total_mean_loss = 2.547474224074551
+[Epoch 79/100] testing
+[Epoch 79/100] test_accuracy = 0.8342347756410257
+[Epoch 80/100] training
+[Epoch 80/100] total_mean_loss = 2.544942057741802
+[Epoch 80/100] testing
+[Epoch 80/100] test_accuracy = 0.8344350961538461
+[Epoch 81/100] training
+[Epoch 81/100] total_mean_loss = 2.542323963281317
+[Epoch 81/100] testing
+[Epoch 81/100] test_accuracy = 0.8353365384615384
+[Epoch 82/100] training
+[Epoch 82/100] total_mean_loss = 2.5439589509547407
+[Epoch 82/100] testing
+[Epoch 82/100] test_accuracy = 0.8353365384615384
+[Epoch 83/100] training
+[Epoch 83/100] total_mean_loss = 2.5428253896022883
+[Epoch 83/100] testing
+[Epoch 83/100] test_accuracy = 0.8356370192307693
+[Epoch 84/100] training
+[Epoch 84/100] total_mean_loss = 2.539816888473232
+[Epoch 84/100] testing
+[Epoch 84/100] test_accuracy = 0.8356370192307693
+[Epoch 85/100] training
+[Epoch 85/100] total_mean_loss = 2.5400156948219883
+[Epoch 85/100] testing
+[Epoch 85/100] test_accuracy = 0.8354366987179487
+[Epoch 86/100] training
+[Epoch 86/100] total_mean_loss = 2.53726687484531
+[Epoch 86/100] testing
+[Epoch 86/100] test_accuracy = 0.8353365384615384
+[Epoch 87/100] training
+[Epoch 87/100] total_mean_loss = 2.5361982077959397
+[Epoch 87/100] testing
+[Epoch 87/100] test_accuracy = 0.8357371794871795
+[Epoch 88/100] training
+[Epoch 88/100] total_mean_loss = 2.534321624510499
+[Epoch 88/100] testing
+[Epoch 88/100] test_accuracy = 0.8353365384615384
+[Epoch 89/100] training
+[Epoch 89/100] total_mean_loss = 2.5327741111504327
+[Epoch 89/100] testing
+[Epoch 89/100] test_accuracy = 0.8353365384615384
+[Epoch 90/100] training
+[Epoch 90/100] total_mean_loss = 2.530453088511158
+[Epoch 90/100] testing
+[Epoch 90/100] test_accuracy = 0.8362379807692307
+[Epoch 91/100] training
+[Epoch 91/100] total_mean_loss = 2.527842140563974
+[Epoch 91/100] testing
+[Epoch 91/100] test_accuracy = 0.8363381410256411
+[Epoch 92/100] training
+[Epoch 92/100] total_mean_loss = 2.5264055053551955
+[Epoch 92/100] testing
+[Epoch 92/100] test_accuracy = 0.8362379807692307
+[Epoch 93/100] training
+[Epoch 93/100] total_mean_loss = 2.5241734529955
+[Epoch 93/100] testing
+[Epoch 93/100] test_accuracy = 0.8361378205128205
+[Epoch 94/100] training
+[Epoch 94/100] total_mean_loss = 2.5259730255612034
+[Epoch 94/100] testing
+[Epoch 94/100] test_accuracy = 0.8366386217948718
+[Epoch 95/100] training
+[Epoch 95/100] total_mean_loss = 2.522746607455744
+[Epoch 95/100] testing
+[Epoch 95/100] test_accuracy = 0.8368389423076923
+[Epoch 96/100] training
+[Epoch 96/100] total_mean_loss = 2.520255622052272
+[Epoch 96/100] testing
+[Epoch 96/100] test_accuracy = 0.8370392628205128
+[Epoch 97/100] training
+[Epoch 97/100] total_mean_loss = 2.5182727308562156
+[Epoch 97/100] testing
+[Epoch 97/100] test_accuracy = 0.8370392628205128
+[Epoch 98/100] training
+[Epoch 98/100] total_mean_loss = 2.5173363203882166
+[Epoch 98/100] testing
+[Epoch 98/100] test_accuracy = 0.8366386217948718
+[Epoch 99/100] training
+[Epoch 99/100] total_mean_loss = 2.515949584107943
+[Epoch 99/100] testing
+[Epoch 99/100] test_accuracy = 0.8372395833333334
+[Epoch 100/100] training
+[Epoch 100/100] total_mean_loss = 2.5131621376619155
+[Epoch 100/100] testing
+[Epoch 100/100] test_accuracy = 0.836738782051282
