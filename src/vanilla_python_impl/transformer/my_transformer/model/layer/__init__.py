@@ -4,3 +4,4 @@ from .positional_encoding import PositionalEncoding
 from .embedding import Embedding
 from .linear import Linear
 from .positionwise_ffn import PositionwiseFFN
+from .multi_head_attn import MultiHeadAttention
