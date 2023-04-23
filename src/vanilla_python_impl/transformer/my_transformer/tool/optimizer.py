@@ -40,6 +40,7 @@ class Adam(Optimizer):
         self.epsilon = epsilon
 
     def update(self, gradient, weights, v, m, v_hat, m_hat, t):
+        # gradient, weights, v, m, v_hat, m_hat, share the same shape
         m = self.beta1 * m + (1 - self.beta1) * gradient
         v = self.beta2 * v + (1 - self.beta2) * np.power(gradient, 2)
 
