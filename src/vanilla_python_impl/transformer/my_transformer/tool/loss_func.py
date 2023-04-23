@@ -47,8 +47,11 @@ class CrossEntropyLoss(Loss):
         shape of return: (num_samples, num_classes)
         """
         num_classes = self.old_y.shape[1]
-        mask = np.eye(num_classes).astype(self.old_y.dtype)
-        mask = mask[self.old_t]
+        # mask = np.eye(num_classes).astype(self.old_y.dtype)
+        # mask = mask[self.old_t]
+
+        mask = np.zeros((self.old_t.size, num_classes)).astype(self.old_y.dtype)
+        mask[np.arange(self.old_t.size), self.old_t] = 1
 
         grad = np.where(mask == 1, -1, 0).astype(self.old_y.dtype)
         grad = np.where(self.old_t.reshape(-1, 1) == self.ignore_index, 0, grad)
