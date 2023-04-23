@@ -7,7 +7,7 @@ except ModuleNotFoundError:
 class Dropout:
     """Implementation of Dropout."""
 
-    def __init__(self, rate, dtype=np.float32):
+    def __init__(self, rate=0.1, dtype=np.float32):
         self.rate = rate
         self.dtype = dtype
 

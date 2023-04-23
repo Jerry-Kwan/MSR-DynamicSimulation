@@ -63,3 +63,37 @@ class LogSoftmax(Activation):
         shape of return: (num_samples, num_classes)
         """
         return self.softmax.backward(grad * (1.0 / self.softmax.old_y))
+
+
+class ReLU(Activation):
+    """ReLU."""
+
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, x):
+        self.old_x = x
+        return np.maximum(0, x)
+
+    def backward(self, grad):
+        """
+        grad shares the same shape as self.old_x
+        """
+        return grad * np.where(self.old_x <= 0, 0, 1).astype(self.old_x.dtype)
+
+
+class Identity(Activation):
+    """Identity Map."""
+
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, x):
+        self.old_x = x
+        return x
+
+    def backward(self, grad):
+        """
+        grad shares the same shape as self.old_x
+        """
+        return grad * np.ones(self.old_x.shape).astype(self.old_x.dtype)
