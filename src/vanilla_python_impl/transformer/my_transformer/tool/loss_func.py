@@ -3,7 +3,7 @@ try:
 except ModuleNotFoundError:
     import numpy as np
 
-from ..model.layer.activation import LogSoftmax
+from ..model.layer import LogSoftmax
 
 
 class Loss:
