@@ -24,9 +24,9 @@ class Embedding:
         # used in Adam
         self.num_update = 0
 
-        self.build()
+        self._build()
 
-    def build(self):
+    def _build(self):
         self.w = np.random.normal(0, pow(self.input_dim, -0.5),
                                   (self.input_dim, self.output_dim)).astype(self.data_type)
 

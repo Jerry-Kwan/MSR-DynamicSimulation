@@ -54,6 +54,9 @@ class MultiHeadAttention:
     def forward(self, query, key, value, mask, training=True):
         """
         shape of qkv: (batch_size, q/k/v_length, d_model)
+
+        **WARNING**: q_length may not be the same as k_length and v_length!!!!!!!
+
         shape of mask:
             (batch_size, ?, seq_len) - ? is 1 for src mask, seq_len for tgt mask
             the i-th row of mask(seq_len, seq_len) represents mask of the i-th word to other words
@@ -64,28 +67,30 @@ class MultiHeadAttention:
         self.K = self.split_heads_forward(self.W_k.forward(key), self.d_k)
         self.V = self.split_heads_forward(self.W_v.forward(value), self.d_v)
 
-        # shape of energy: (batch_size, self.heads_num, q/k_length, q/k_length)
+        # shape of energy: (batch_size, self.heads_num, q_length, k_length)
+        # **WARNING**: q_length may not be the same as k_length!!!!!!!!!!!!!!
         energy = np.matmul(self.Q, self.K.transpose(0, 1, 3, 2)) / self.scale
 
         # add mask
         self.mask = np.asarray(mask)
         if self.mask is not None:
-            # shape after newaxis: (batch_size, 1, ?, seq_len)
-            # ? is 1 for src mask, seq_len for tgt mask
+            # shape after newaxis: (batch_size, 1, ?, k_length)
+            # ? is 1 for src mask, q_length for tgt mask
             self.mask = self.mask[:, np.newaxis, ...]
             energy = np.where(self.mask == 0, float('-inf'), energy)
 
         # softmax activation
-        qk_len = energy.shape[3]
-        energy = energy.reshape(-1, qk_len)
+        q_len = energy.shape[2]
+        k_len = energy.shape[3]
+        energy = energy.reshape(-1, k_len)
         attention = self.activation.forward(energy)
-        attention = attention.reshape(-1, self.heads_num, qk_len, qk_len)
+        attention = attention.reshape(-1, self.heads_num, q_len, k_len)
 
-        # QK^TV, shape of output is (batch_size, self.heads_num, q/k_length, self.d_v)
+        # QK^TV, shape of output is (batch_size, self.heads_num, q_length, self.d_v)
         self.dropout_attention = self.dropout.forward(attention, training)
         output = np.matmul(self.dropout_attention, self.V)
 
-        # shape of concat_output: (batch_size, self.query_len, self.heads_num * self.d_v)
+        # shape of concat_output: (batch_size, self.q_len, self.heads_num * self.d_v)
         concat_output = self.group_heads_forward(output)
         return self.W_o.forward(concat_output), attention
 
@@ -98,25 +103,26 @@ class MultiHeadAttention:
         return x.transpose(0, 2, 1, 3).reshape(batch_size, -1, self.heads_num * dim)
 
     def backward(self, grad):
-        # shape of grad: (batch_size, self.query_len, d_model)
-        # shape after W_o: (batch_size, self.query_len, self.heads_num * self.d_v)
+        # shape of grad: (batch_size, self.q_len, d_model)
+        # shape after W_o: (batch_size, self.q_len, self.heads_num * self.d_v)
         grad = self.W_o.backward(grad)
 
-        # shape after group back: (batch_size, self.heads_num, seq_len, self.d_v)
+        # shape after group back: (batch_size, self.heads_num, q_len, self.d_v)
         grad = self.group_heads_backward(grad)
 
         # same as embedding backward, see my notes for details
-        # shape of V_grad: (batch_size, self.heads_num, seq_len, self.d_v)
+        # shape of V_grad: (batch_size, self.heads_num, k/v_len, self.d_v)
         V_grad = np.matmul(self.dropout_attention.transpose(0, 1, 3, 2), grad)
 
-        # shape of output grad: (batch_size, self.heads_num, seq_len, seq_len)
+        # shape of output grad: (batch_size, self.heads_num, q_len, v_len)
         grad = np.matmul(grad, self.V.transpose(0, 1, 3, 2))
         grad = self.dropout.backward(grad)
 
-        qk_len = grad.shape[3]
-        grad = grad.reshape(-1, qk_len)
+        v_len = grad.shape[3]
+        q_len = grad.shape[2]
+        grad = grad.reshape(-1, v_len)
         grad = self.activation.backward(grad)
-        grad = grad.reshape(-1, self.heads_num, qk_len, qk_len)
+        grad = grad.reshape(-1, self.heads_num, q_len, v_len)
 
         if self.mask is not None:
             grad = np.where(self.mask == 0, 0, grad)
@@ -124,7 +130,8 @@ class MultiHeadAttention:
         grad /= self.scale
 
         # see my notes for embedding grad for details
-        # shape of Q/K_grad: (batch_size, self.heads_num, qk_len, d_q/k)
+        # shape of Q_grad: (batch_size, self.heads_num, q_len, d_q)
+        # shape of K_grad: (batch_size, self.heads_num, k_len, d_k)
         Q_grad = np.matmul(grad, self.K)
         K_grad = np.matmul(self.Q.transpose(0, 1, 3, 2), grad)
         K_grad = K_grad.transpose(0, 1, 3, 2)

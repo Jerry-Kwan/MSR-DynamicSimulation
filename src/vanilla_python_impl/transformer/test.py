@@ -1,4 +1,4 @@
-from my_transformer import Adam, Noam, CrossEntropyLoss, PositionalEncoding, Embedding, Linear, PositionwiseFFN, MultiHeadAttention, LayerNormalization
+from my_transformer import Adam, Noam, CrossEntropyLoss, PositionalEncoding, Embedding, Linear, PositionwiseFFN, MultiHeadAttention, LayerNorm, EncoderLayer, DecoderLayer
 import numpy as np
 import torch
 
@@ -29,6 +29,15 @@ import torch
 # k = np.random.randn(2, 3, 4)
 # print(a.forward(k, k, k, np.ones((2, 1, 3)), training=True)[0])
 # print(a.backward(np.random.randn(2, 3, 4)))
-# a = LayerNormalization(5)
+# a = LayerNorm(5)
 # print(np.sum(a.forward(np.random.randn(3, 4, 5)), axis=-1))
 # print(a.backward(np.random.randn(3, 4, 5)))
+# a = EncoderLayer(4, 2, 3, 0.1)
+# src = np.random.randn(3, 3, 4)
+# print(a.forward(src, np.ones((3, 3, 3)), True))
+# print(a.backward(np.ones_like(src)))
+# a = DecoderLayer(2, 2, 2, 0.1)
+# src = np.random.randn(2, 2, 2)
+# tgt = np.random.randn(2, 3, 2)
+# print(a.forward(tgt, np.ones((2, 3, 3)), src, np.ones((2, 1, 2)), True)[0].shape)
+# print([x.shape for x in a.backward(np.ones_like(tgt))])

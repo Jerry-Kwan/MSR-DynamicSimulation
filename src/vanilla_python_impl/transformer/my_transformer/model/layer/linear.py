@@ -25,23 +25,12 @@ class Linear:
         # used in Adam
         self.num_update = 0
 
-        self.build()
+        self._build()
 
-    def build(self):
-        # self.w = np.random.normal(0, pow(self.input_size, -0.5), (self.input_size, self.out_features))
-
+    def _build(self):
         # xavier initialization
         stdv = 1. / np.sqrt(self.in_features)  # * 0.5 # input size
-        # stdv = np.sqrt(6) / np.sqrt(self.input_size + self.out_features)
-        # kaiming initialization
-        # stdv = np.sqrt(2 / self.input_size)
-
         self.w = np.random.uniform(-stdv, stdv, (self.in_features, self.out_features)).astype(self.data_type)
-
-        # if self.bias == True:
-        #     self.b = np.random.uniform(-stdv, stdv, self.out_features)
-        # else:
-        #     self.b = np.zeros(self.out_features)
         self.b = np.zeros(self.out_features).astype(self.data_type)
 
         # optimizer params

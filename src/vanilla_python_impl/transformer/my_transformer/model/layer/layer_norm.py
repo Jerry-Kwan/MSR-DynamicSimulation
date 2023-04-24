@@ -4,33 +4,21 @@ except ModuleNotFoundError:
     import numpy as np
 
 
-class LayerNormalization:
+class LayerNorm:
     """
-    Applies layer normalization to the input data
-    ---------------------------------------------
-        Args:
-            `epsilon` (float): the epsilon parameter of the algorithm
-        Returns:
-            output: the normalized input data with same shape
+    Simplified Layer Normalization.
+    Only works when normalized_shape is a number.
 
-        Reference:
-            https://blog.csdn.net/qq_43827595/article/details/121877901
+    Reference:
+        https://blog.csdn.net/qq_43827595/article/details/121877901
     """
 
     def __init__(self, normalized_shape=None, epsilon=0.001, data_type=np.float32):
+        assert normalized_shape is not None, 'normalized_shape should not be None'
+
         self.normalized_shape = normalized_shape
         self.epsilon = epsilon
         self.data_type = data_type
-
-        self.normalized_axis = None
-
-        self.gamma = None
-        self.beta = None
-
-        self.mean = None
-        self.var = None
-
-        self.axis = None
 
         # used in Adam
         self.num_update = 0
@@ -38,34 +26,33 @@ class LayerNormalization:
         self._build()
 
     def _build(self):
-        self.feature_size = None
+        self.gamma = np.ones(self.normalized_shape).astype(self.data_type)
+        self.beta = np.zeros(self.normalized_shape).astype(self.data_type)
 
-        if self.normalized_shape is not None:
-            self.gamma = np.ones(self.normalized_shape).astype(self.data_type)
-            self.beta = np.zeros(self.normalized_shape).astype(self.data_type)
+        # optimizer params
+        self.vg, self.mg = np.zeros_like(self.gamma).astype(self.data_type), np.zeros_like(self.gamma).astype(
+            self.data_type)
+        self.vg_hat, self.mg_hat = np.zeros_like(self.gamma).astype(self.data_type), np.zeros_like(
+            self.gamma).astype(self.data_type)
 
-            self.vg, self.mg = np.zeros_like(self.gamma).astype(self.data_type), np.zeros_like(self.gamma).astype(
-                self.data_type)
-            self.vg_hat, self.mg_hat = np.zeros_like(self.gamma).astype(self.data_type), np.zeros_like(
-                self.gamma).astype(self.data_type)
+        # optimizer params
+        self.vb, self.mb = np.zeros_like(self.beta).astype(self.data_type), np.zeros_like(self.beta).astype(
+            self.data_type)
+        self.vb_hat, self.mb_hat = np.zeros_like(self.beta).astype(self.data_type), np.zeros_like(self.beta).astype(
+            self.data_type)
 
-            self.vb, self.mb = np.zeros_like(self.beta).astype(self.data_type), np.zeros_like(self.beta).astype(
-                self.data_type)
-            self.vb_hat, self.mb_hat = np.zeros_like(self.beta).astype(self.data_type), np.zeros_like(
-                self.beta).astype(self.data_type)
+        self.feature_size = self.gamma.size
 
     def forward(self, X):
+        """
+        output: the normalized input data with same shape
+        """
         self.input_data = X
 
         # .T: shape(a, b, c, d) -> shape(d, c, b, a)
         x_T = self.input_data.T
 
-        if self.normalized_shape is None:
-            self.normalized_shape = self.input_data.shape[1:]
-            self._build()
-
         self.normalized_axis = tuple(np.arange(self.input_data.ndim - self.gamma.ndim).tolist())
-        self.feature_size = self.gamma.size
 
         self.mean = np.mean(x_T, axis=0)
         self.var = np.var(x_T, axis=0)
