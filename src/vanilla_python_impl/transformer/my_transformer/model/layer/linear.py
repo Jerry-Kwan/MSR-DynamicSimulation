@@ -6,7 +6,7 @@ except ModuleNotFoundError:
 
 class Linear:
     """
-    Add Dense layer
+    Linear transformation.
     ---------------
         Args:
             in_features (int): dimension of the input

@@ -34,7 +34,7 @@ class DecoderLayer:
 
         # sub3: ffn forward
         ffn_out = self.ffn.forward(sub2_out, training)
-        sub3_out = self.ln3.forward(ffn_out + self.dropout.forward(ffn_out, training))
+        sub3_out = self.ln3.forward(sub2_out + self.dropout.forward(ffn_out, training))
 
         return sub3_out, attention
 
