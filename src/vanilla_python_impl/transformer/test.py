@@ -1,6 +1,6 @@
-from my_transformer import Adam, Noam, CrossEntropyLoss, PositionalEncoding, Embedding, Linear, PositionwiseFFN, MultiHeadAttention, LayerNorm, EncoderLayer, DecoderLayer, Encoder, Decoder
-import numpy as np
 import torch
+import numpy as np
+from my_transformer import Adam, Noam, CrossEntropyLoss, PositionalEncoding, Embedding, Linear, PositionwiseFFN, MultiHeadAttention, LayerNorm, EncoderLayer, DecoderLayer, Encoder, Decoder, Transformer
 
 # a = CrossEntropyLoss()
 # x_input = torch.randn(4, 3)  #随机生成输入
@@ -59,10 +59,55 @@ import torch
 # print(a.forward(src, np.ones((2, 1, 5)), True))
 # print(a.backward(np.ones((2, 5, 3))))
 
-a = Decoder(5, 2, 2, 3, 2, 0.1, 10)
-tgt = np.array([
-    [4, 2, 3, 0, 1],
-    [3, 4, 1, 0, 2]
-])
-print(a.forward(tgt, np.ones((2, 5, 5)), np.random.randn(2, 3, 3), np.ones((2, 1, 3)), True))
-print(a.backward(np.ones((2, 5, 5))))
+# a = Decoder(5, 2, 2, 3, 2, 0.1, 10)
+# tgt = np.array([
+#     [4, 2, 3, 0, 1],
+#     [3, 4, 1, 0, 2]
+# ])
+# print(a.forward(tgt, np.ones((2, 5, 5)), np.random.randn(2, 3, 3), np.ones((2, 1, 3)), True))
+# print(a.backward(np.ones((2, 5, 5))))
+
+# vocab_size = 10
+# max_len = 10
+# num_heads = 2
+# num_layers = 2
+# d_model = 4
+# d_ff = 2
+# dropout = 0.1
+# a = Transformer(vocab_size, vocab_size, max_len, max_len, num_heads, num_heads, num_layers, num_layers, d_model, d_ff,
+#                 dropout, dropout)
+# optim = Noam(Adam(alpha=1e-4, beta1=0.9, beta2=0.98, epsilon=1e-9), d_model, 2, 4000)
+# a.set_optimizer(optim)
+# cri = CrossEntropyLoss(ignore_index=0)
+# src = np.array([
+#     [2, 3, 4, 5, 0, 0],
+#     [4, 7, 2, 1, 8, 0]
+# ])
+# src_mask = (src != 0).astype(int)[:, None, :]
+# tgt = np.array([
+#     [7, 2, 6, 1, 1, 1, 0],
+#     [2, 3, 2, 2, 0, 0, 0]
+# ])
+# t = np.array([1, 2, 3, 4, 5, 6, 0, 0, 8, 0, 0, 0, 3, 3])
+# tgt_mask = np.triu(np.ones((7, 7)), k=1).astype(int)
+# tgt_mask = np.logical_not(tgt_mask)
+# tgt_mask2 = (tgt != 0).astype(int)[:, None, :]
+# tgt_mask = tgt_mask & tgt_mask2
+# o, _ = a.forward(src, tgt, src_mask, tgt_mask, True)
+# print(o.shape)
+# loss = cri.forward(o.reshape(-1, vocab_size), t)
+# print(loss.sum())
+# grad = cri.backward()
+# print(grad.shape)
+# a.backward(grad.reshape(2, 7, 10))
+# print(a.encoder.input_embedding.w, end='\n\n')
+# print(a.encoder.input_embedding.grad_w, end='\n\n')
+# a.update_weights()
+# print(a.encoder.input_embedding.w, end='\n\n')
+# for i in range(500):
+#     o, _ = a.forward(src, tgt, src_mask, tgt_mask, True)
+#     loss = cri.forward(o.reshape(-1, vocab_size), t)
+#     print(loss.sum())
+#     grad = cri.backward()
+#     a.backward(grad.reshape(2, 7, 10))
+#     a.update_weights()
