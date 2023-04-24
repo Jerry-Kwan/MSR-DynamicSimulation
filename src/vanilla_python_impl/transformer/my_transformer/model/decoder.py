@@ -3,7 +3,7 @@ try:
 except ModuleNotFoundError:
     import numpy as np
 
-from .layer import Linear, Embedding, Dropout, DecoderLayer, Identity, PositionalEncoding
+from .layer import Linear, Embedding, Dropout, DecoderLayer, PositionalEncoding
 
 
 class Decoder:

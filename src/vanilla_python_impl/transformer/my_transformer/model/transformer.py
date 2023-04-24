@@ -17,6 +17,12 @@ class Transformer(EncoderDecoder):
 
     References:
         1. Attention Is All You Need (https://arxiv.org/pdf/1706.03762.pdf)
+        2. https://github.com/AkiRusProd/numpy-transformer
+        3. https://sgugger.github.io/a-simple-neural-net-in-numpy.html
+        4. https://d2l.ai/chapter_attention-mechanisms-and-transformers/transformer.html
+        5. https://zh.d2l.ai/chapter_attention-mechanisms/transformer.html
+        6. https://www.cnblogs.com/xiximayou/p/13343665.html
+        7. ...
     """
 
     def __init__(self,

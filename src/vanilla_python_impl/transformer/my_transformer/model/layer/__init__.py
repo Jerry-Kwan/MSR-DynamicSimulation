@@ -1,4 +1,4 @@
-from .activation import Softmax, LogSoftmax, ReLU, Identity
+from .activation import Softmax, LogSoftmax, ReLU
 from .dropout import Dropout
 from .positional_encoding import PositionalEncoding
 from .embedding import Embedding
