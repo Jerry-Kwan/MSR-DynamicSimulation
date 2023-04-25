@@ -225,13 +225,13 @@ def plot_graph(train_epoch_loss, test_epoch_loss):
     x = np.arange(len(train_epoch_loss)) + 1
 
     plt.subplot(121)
-    plt.plot(x, train_epoch_loss, 'bo-')
+    plt.plot(x, train_epoch_loss, 'b-')
     plt.title('Training Loss Curve')
     plt.xlabel('Epoch')
     plt.ylabel('Loss Per Sentence')
 
     plt.subplot(122)
-    plt.plot(x, test_epoch_loss, 'ro-')
+    plt.plot(x, test_epoch_loss, 'r-')
     plt.title('Testing Loss Curve')
     plt.xlabel('Epoch')
     plt.ylabel('Loss Per Sencence')
@@ -249,18 +249,19 @@ def plot_attn(args, dp, src, tgt, attn, idx):
     src = [dp.BOS_TOKEN] + [word.lower() for word in src] + [dp.EOS_TOKEN]
     tgt = [dp.BOS_TOKEN] + tgt[:-1]
 
-    fig = plt.figure()
+    # high dpi is needed
+    fig = plt.figure(figsize=(15, 25), dpi=150)
 
     for h in range(args.num_dec_heads):
         ax = fig.add_subplot(args.num_attn_rows, args.num_attn_cols, h + 1)
         ax.set_xlabel(f'Key\nHead {h + 1}')
         ax.set_ylabel('Query')
         if use_cupy:
-            ax.matshow(cp.asnumpy(attn[h]), cmap='inferno')
+            ax.matshow(cp.asnumpy(attn[h]), cmap=plt.cm.Reds)
         else:
-            ax.matshow(attn[h], cmap='inferno')
+            ax.matshow(attn[h], cmap=plt.cm.Reds)
 
-        ax.tick_params(labelsize=7)
+        ax.tick_params(labelsize=8)
 
         ax.set_xticks(range(len(src)))
         ax.set_yticks(range(len(tgt)))
@@ -276,7 +277,8 @@ def pred_and_plot_attn(args, dp, model):
     """Predict and plot attention."""
     EXAMPLES = [
         ['i', 'love', 'study', '.'],
-        ['the', 'whether', 'is', 'good', 'today', '.']
+        ['the', 'whether', 'is', 'good', 'today', '.'],
+        ['do', 'you', 'want', 'to', 'play', 'with', 'me', 'tomorrow', '?']
     ]
 
     for i, example in enumerate(EXAMPLES):
