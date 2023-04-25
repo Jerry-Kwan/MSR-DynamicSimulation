@@ -113,12 +113,12 @@ class DataProcessor:
         self.num_train_batches = len(self.train_src)
         self.num_test_batches = len(self.test_src)
 
-        self.train_src_mask = self._get_pad_mask(self.train_src)
-        self.test_src_mask = self._get_pad_mask(self.test_src)
-        self.train_tgt_mask = self._and_pad_sub_mask(self._get_pad_mask(self.train_tgt),
-                                                     self._get_sub_mask(self.train_tgt))
-        self.test_tgt_mask = self._and_pad_sub_mask(self._get_pad_mask(self.test_tgt),
-                                                    self._get_sub_mask(self.test_tgt))
+        self.train_src_mask = self.get_pad_mask(self.train_src)
+        self.test_src_mask = self.get_pad_mask(self.test_src)
+        self.train_tgt_mask = self._and_pad_sub_mask(self.get_pad_mask(self.train_tgt),
+                                                     self.get_sub_mask(self.train_tgt))
+        self.test_tgt_mask = self._and_pad_sub_mask(self.get_pad_mask(self.test_tgt),
+                                                    self.get_sub_mask(self.test_tgt))
 
         self._print_dataset_info()
 
@@ -234,7 +234,7 @@ class DataProcessor:
 
         return ret_src, ret_tgt
 
-    def _get_pad_mask(self, x):
+    def get_pad_mask(self, x):
         """
         Return pad mask.
         ----------------
@@ -248,7 +248,7 @@ class DataProcessor:
 
         return ret
 
-    def _get_sub_mask(self, x):
+    def get_sub_mask(self, x):
         """
         Return sub mask, only used for tgt.
         ----------------

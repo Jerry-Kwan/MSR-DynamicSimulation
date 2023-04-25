@@ -82,9 +82,9 @@ class Transformer(EncoderDecoder):
         self.encoder.update_weights()
         self.decoder.update_weights()
 
-    def load_model(self, path):
-        pickle_encoder = open(f'{path}/encoder.pkl', 'rb')
-        pickle_decoder = open(f'{path}/decoder.pkl', 'rb')
+    def load_model(self, path, suffix):
+        pickle_encoder = open(f'{path}/encoder-{suffix}.pkl', 'rb')
+        pickle_decoder = open(f'{path}/decoder-{suffix}.pkl', 'rb')
 
         self.encoder = pickle.load(pickle_encoder)
         self.decoder = pickle.load(pickle_decoder)
@@ -92,14 +92,14 @@ class Transformer(EncoderDecoder):
         pickle_encoder.close()
         pickle_decoder.close()
 
-        print(f'load from "{path}"')
+        print(f'---load from "{path}" with suffix {suffix}---', end='\n\n')
 
-    def save_model(self, path):
+    def save_model(self, path, suffix):
         if not os.path.exists(path):
             os.makedirs(path)
 
-        pickle_encoder = open(f'{path}/encoder.pkl', 'wb')
-        pickle_decoder = open(f'{path}/decoder.pkl', 'wb')
+        pickle_encoder = open(f'{path}/encoder-{suffix}.pkl', 'wb')
+        pickle_decoder = open(f'{path}/decoder-{suffix}.pkl', 'wb')
 
         pickle.dump(self.encoder, pickle_encoder)
         pickle.dump(self.decoder, pickle_decoder)
@@ -107,7 +107,7 @@ class Transformer(EncoderDecoder):
         pickle_encoder.close()
         pickle_decoder.close()
 
-        print(f'save to "{path}"')
+        print(f'---save to "{path}" with suffix {suffix}---', end='\n\n')
 
     def forward(self, src, tgt, src_mask, tgt_mask, training):
         """
