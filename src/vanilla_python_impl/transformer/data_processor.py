@@ -113,6 +113,8 @@ class DataProcessor:
         self.num_train_batches = len(self.train_src)
         self.num_test_batches = len(self.test_src)
 
+        # src_mask: (batch_size, 1, max_len_in_this_batch)
+        # tgt_mask: (batch_size, max_len_in_this_batch, max_len_in_this_batch)
         self.train_src_mask = self.get_pad_mask(self.train_src)
         self.test_src_mask = self.get_pad_mask(self.test_src)
         self.train_tgt_mask = self._and_pad_sub_mask(self.get_pad_mask(self.train_tgt),
@@ -123,6 +125,7 @@ class DataProcessor:
         self._print_dataset_info()
 
     def train_iter(self):
+        """Training iterator."""
         idx = list(range(self.num_train_batches))
         random.shuffle(idx)
 
@@ -131,6 +134,7 @@ class DataProcessor:
                                                                           self.train_tgt_mask[idx[i]])
 
     def test_iter(self):
+        """Testing iterator."""
         idx = list(range(self.num_test_batches))
         random.shuffle(idx)
 
