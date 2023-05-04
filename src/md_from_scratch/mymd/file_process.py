@@ -12,6 +12,8 @@ def gen_files_from_pdb(old_pdb_file,
                        rigidWater=False):
     """
     Generate PSF file, PRMTOP file and a new PDB file from the original PDB file.
+
+    Use openmm to add some missing information in PDB file, such as bonds.
     """
     # load pdb file
     pdb = app.PDBFile(old_pdb_file)
