@@ -11,11 +11,12 @@ class System(object):
     NONBONDED_TERMS = ['lj', 'electrostatics']
     TERMS = BONDED_TERMS + NONBONDED_TERMS
 
-    def __init__(self, mol, ff, terms=TERMS):
+    def __init__(self, mol, ff, terms=TERMS, cutoff=None):
         assert set(terms) <= set(self.TERMS), 'Some of terms are not implemented.'
-        self._build_sys_params(mol, ff, terms)
+        self._build_sys_params(mol, ff, terms, cutoff)
 
-    def _build_sys_params(self, mol, ff, terms):
+    def _build_sys_params(self, mol, ff, terms, cutoff):
+        self.cutoff = cutoff
         self.num_atoms = mol.numAtoms
 
         # build unique atom types and corresponding indices
