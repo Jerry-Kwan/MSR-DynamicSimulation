@@ -316,7 +316,7 @@ class System(object):
     def get_exclusions(self, types=['bonds', 'angles']):
         """Get a list of exclusive atom pairs with type in types.
 
-        Exclusions are used in the computation of nonbonded forces, currently only support bonds and angles.
+        Exclusive atom pairs are not computed for nonbonded forces, currently only supporting bonds and angles.
         """
         assert set(types) <= set(['bonds', 'angles']), f'{set(types)} is not the subset of {set(["bonds", "angles"])}'
         exclusions = []
