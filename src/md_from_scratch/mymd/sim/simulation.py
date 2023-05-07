@@ -13,12 +13,20 @@ class Simulation(object):
         1. TOBEDONE
     """
 
-    def __init__(self, mol, system, integrator, device, dtype):
+    BONDED_TERMS = ['bonds', 'angles', 'dihedrals', 'impropers']
+    NONBONDED_TERMS = ['lj', 'electrostatics']
+    TERMS = BONDED_TERMS + NONBONDED_TERMS
+
+    def __init__(self, mol, system, integrator, device, dtype, use_external=False, sim_terms=TERMS):
         self.mol = mol
         self.system = system
         self.integrator = integrator
         self.device = device
         self.dtype = dtype
+        self.use_external = use_external
+
+        assert set(sim_terms) <= set(self.TERMS), 'Some of terms are not implemented.'
+        self.sim_terms = sim_terms
 
         self._build_simulation()
 

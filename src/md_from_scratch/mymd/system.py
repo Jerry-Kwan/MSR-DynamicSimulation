@@ -312,3 +312,20 @@ class System(object):
 
         if self.box is not None:
             self.box = self.box.to(device)
+
+    def get_exclusions(self, types=['bonds', 'angles']):
+        """Get a list of exclusive atom pairs with type in types.
+
+        Exclusions are used in the computation of nonbonded forces, currently only support bonds and angles.
+        """
+        assert set(types) <= set(['bonds', 'angles']), f'{set(types)} is not the subset of {set(["bonds", "angles"])}'
+        exclusions = []
+
+        if self.bonds is not None and 'bonds' in types:
+            exclusions += self.bonds.cpu().numpy().tolist()
+
+        if self.angles is not None and 'angles' in types:
+            np_angles = self.angles.cpu().numpy()
+            exclusions += np_angles[:, [0, 2]].tolist()
+
+        return exclusions
