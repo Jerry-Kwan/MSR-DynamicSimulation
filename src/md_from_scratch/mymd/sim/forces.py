@@ -89,13 +89,26 @@ class Forces(object):
                 arrays = (bond_dist, bond_unit_vec, bonds, bond_params)
                 bond_dist, bond_unit_vec, bonds, bond_params = self._filter_by_cutoff(bond_dist, arrays)
 
-            pass  # TOBEDONE
+            pot_bonds, f0, f1 = self._eval_bonds(bond_dist, bond_params, bond_unit_vec)
+
+            potentials['bonds'] += pot_bonds.sum()
+            forces.index_add_(0, bonds[:, 0], f0)
+            forces.index_add_(0, bonds[:, 1], f1)
 
         if 'angles' in self.terms and self.system.angles is not None:
-            pass  # TOBEDONE
+            _, _, r21 = self.compute_distances(pos, self.system.angles[:, [0, 1]], self.box)
+            _, _, r23 = self.compute_distances(pos, self.system.angles[:, [2, 1]], self.box)
+
+            pot_angles, f_angles = self._eval_angles(r21, r23, self.system.angle_params)
+
+            potentials['angles'] += pot_angles.sum()
+
+            forces.index_add_(0, self.system.angles[:, 0], f_angles[0])
+            forces.index_add_(0, self.system.angles[:, 1], f_angles[1])
+            forces.index_add_(0, self.system.angles[:, 2], f_angles[2])
 
         if 'dihedrals' in self.terms and self.system.dihedrals is not None:
-            pass  # TOBEDONE
+            pass  # TOBEDONE here!!!
 
         if 'impropers' in self.terms and self.system.impropers is not None:
             pass  # TOBEDONE
@@ -152,8 +165,54 @@ class Forces(object):
 
         return new_arrays
 
-    def _eval_bonds(self, bond_dist, bond_params):
-        k, d0 = bond_params[:, 0], bond_params[:, 1]  # ndim of k and d0 is 1
-        x = bond_dist - d0
-        pot = k * (x**2)
-        f = ...  # TOBEDONE
+    def _eval_bonds(self, bond_dist, bond_params, bond_unit_vec):
+        """Evaluate bonds.
+
+        **WARNING**: k has been divided by 2 in parmed.
+
+        Returns
+        -------
+        -f_vec is for atom0, f_vec is for atom1
+        """
+        k, d_0 = bond_params[:, 0], bond_params[:, 1]  # ndim of k and d_0 is 1
+        x = bond_dist - d_0
+
+        pot = k * x * x
+
+        f = 2 * k * x
+        f_vec = bond_unit_vec * f[:, None]
+
+        return pot, -f_vec, f_vec
+
+    def _eval_angles(self, r21, r23, angle_params):
+        """Evaluate angles.
+
+        **WARNING**: k has been divided by 2 in parmed.
+        """
+        k, theta_0 = angle_params[:, 0], angle_params[:, 1]
+
+        inv_norm_r21 = 1 / torch.norm(r21, dim=1)
+        inv_norm_r23 = 1 / torch.norm(r23, dim=1)
+        dot_prod = torch.sum(r21 * r23, dim=1)
+
+        cos_theta = dot_prod * inv_norm_r21 * inv_norm_r23
+        cos_theta = torch.clamp(cos_theta, -1, 1)
+        theta = torch.acos(cos_theta)
+
+        delta_theta = theta - theta_0
+        pot = k * delta_theta * delta_theta  # maybe **2 can not be tracked by torch
+
+        sin_theta = torch.sqrt(1.0 - cos_theta * cos_theta)
+        coef = torch.zeros_like(sin_theta)
+        non_zero = sin_theta != 0
+        coef[non_zero] = -2.0 * k[non_zero] * delta_theta[non_zero] / sin_theta[non_zero]
+
+        force0 = cos_theta[:, None] * r21 * inv_norm_r21[:, None] - r23 * inv_norm_r23[:, None]
+        force0 = coef[:, None] * force0 * inv_norm_r21[:, None]
+
+        force2 = cos_theta[:, None] * r23 * inv_norm_r23[:, None] - r21 * inv_norm_r21[:, None]
+        force2 = coef[:, None] * force2 * inv_norm_r23[:, None]
+
+        force1 = -(force0 + force2)
+
+        return pot, (force0, force1, force2)
