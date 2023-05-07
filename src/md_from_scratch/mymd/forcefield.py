@@ -44,19 +44,33 @@ class PrmtopMolForceField(ForceField):
         return MyAmberParameterSet.my_from_structure(struct)
 
     def get_bond_params(self, atom1, atom2):
-        """
-        Return bond parameters.
+        """Return bond parameters.
 
-        atom1 and atom2 should be str such as H1
+        Parameters
+        ----------
+        atom1 & atom2
+            Should be str such as H1.
+
+        Returns
+        -------
+        k
+            **WARNING**, k has been divided by 2!!!!!
         """
         p = self.params.bond_types[(atom1, atom2)]
         return p.k, p.req
 
     def get_angle_params(self, atom1, atom2, atom3):
-        """
-        Return angle parameters (convert degrees to radians).
+        """Return angle parameters (convert degrees to radians).
 
-        atom123 should be str such as H1
+        Parameters
+        ----------
+        atom123
+            Should be str such as H1.
+
+        Returns
+        -------
+        k
+            **WARNING**, k has been divided by 2!!!!!
         """
         p = self.params.angle_types[(atom1, atom2, atom3)]
         return p.k, radians(p.theteq)
