@@ -1,3 +1,4 @@
+from math import pi
 import numpy as np
 import torch
 
@@ -108,18 +109,64 @@ class Forces(object):
             forces.index_add_(0, self.system.angles[:, 2], f_angles[2])
 
         if 'dihedrals' in self.terms and self.system.dihedrals is not None:
-            pass  # TOBEDONE here!!!
+            _, _, r12 = self.compute_distances(pos, self.system.dihedrals[:, [0, 1]], self.box)
+            _, _, r23 = self.compute_distances(pos, self.system.dihedrals[:, [1, 2]], self.box)
+            _, _, r34 = self.compute_distances(pos, self.system.dihedrals[:, [2, 3]], self.box)
+
+            pot_dihedrals, f_dihedrals = self._eval_torsion(r12, r23, r34, self.system.dihedral_params)
+
+            potentials['dihedrals'] += pot_dihedrals.sum()
+
+            forces.index_add_(0, self.system.dihedrals[:, 0], f_dihedrals[0])
+            forces.index_add_(0, self.system.dihedrals[:, 1], f_dihedrals[1])
+            forces.index_add_(0, self.system.dihedrals[:, 2], f_dihedrals[2])
+            forces.index_add_(0, self.system.dihedrals[:, 3], f_dihedrals[3])
 
         if 'impropers' in self.terms and self.system.impropers is not None:
-            pass  # TOBEDONE
+            _, _, r12 = self.compute_distances(pos, self.system.impropers[:, [0, 1]], self.box)
+            _, _, r23 = self.compute_distances(pos, self.system.impropers[:, [1, 2]], self.box)
+            _, _, r34 = self.compute_distances(pos, self.system.impropers[:, [2, 3]], self.box)
+
+            pot_impropers, f_impropers = self._eval_torsion(r12, r23, r34, self.system.improper_params)
+
+            potentials['impropers'] += pot_impropers.sum()
+
+            forces.index_add_(0, self.system.impropers[:, 0], f_impropers[0])
+            forces.index_add_(0, self.system.impropers[:, 1], f_impropers[1])
+            forces.index_add_(0, self.system.impropers[:, 2], f_impropers[2])
+            forces.index_add_(0, self.system.impropers[:, 3], f_impropers[3])
 
     def _compute_nonbonded(self, pos, potentials, forces):
         if self.require_nonbonded and len(self.ava_idx):
-            pass  # TOBEDONE
+            nb_dist, nb_unit_vec, _ = self.compute_distances(pos, self.ava_idx, self.box)
+            ava_idx = self.ava_idx
+            if self.cutoff is not None:
+                nb_dist, nb_unit_vec, ava_idx = self._filter_by_cutoff(nb_dist, (nb_dist, nb_unit_vec, ava_idx))
+
+            if 'electrostatics' in self.terms:
+                pot_elec, f_elec = self._eval_electrostatics(nb_dist, ava_idx)
+                potentials['electrostatics'] += pot_elec.sum()
+
+                force_vec = nb_unit_vec * f_elec[:, None]
+                forces.index_add_(0, ava_idx[:, 0], -force_vec)
+                forces.index_add_(0, ava_idx[:, 1], force_vec)
+
+            if 'lj' in self.terms:
+                pot_lj, f_lj = self._eval_lj(nb_dist, ava_idx)
+                potentials['lj'] += pot_lj.sum()
+
+                force_vec = nb_unit_vec * f_lj[:, None]
+                forces.index_add_(0, ava_idx[:, 0], -force_vec)
+                forces.index_add_(0, ava_idx[:, 1], force_vec)
 
     def _compute_external(self, pos, potentials, forces):
+        """Compute external potentials and forces.
+
+        External object must implement compute() method.
+        """
         if self.use_external:
-            pass  # TOBEDONE
+            assert self.system.external is not None, 'External is None.'
+            raise NotImplementedError  # TOBEDONE
 
     @staticmethod
     def compute_distances(pos, idx, box):
@@ -207,12 +254,87 @@ class Forces(object):
         non_zero = sin_theta != 0
         coef[non_zero] = -2.0 * k[non_zero] * delta_theta[non_zero] / sin_theta[non_zero]
 
-        force0 = cos_theta[:, None] * r21 * inv_norm_r21[:, None] - r23 * inv_norm_r23[:, None]
-        force0 = coef[:, None] * force0 * inv_norm_r21[:, None]
+        force_0 = cos_theta[:, None] * r21 * inv_norm_r21[:, None] - r23 * inv_norm_r23[:, None]
+        force_0 = coef[:, None] * force_0 * inv_norm_r21[:, None]
 
-        force2 = cos_theta[:, None] * r23 * inv_norm_r23[:, None] - r21 * inv_norm_r21[:, None]
-        force2 = coef[:, None] * force2 * inv_norm_r23[:, None]
+        force_2 = cos_theta[:, None] * r23 * inv_norm_r23[:, None] - r21 * inv_norm_r21[:, None]
+        force_2 = coef[:, None] * force_2 * inv_norm_r23[:, None]
 
-        force1 = -(force0 + force2)
+        force_1 = -(force_0 + force_2)
 
-        return pot, (force0, force1, force2)
+        return pot, (force_0, force_1, force_2)
+
+    def _eval_torsion(self, r12, r23, r34, torsion_params):
+        """Evaluate torsion angles (including dihedrals and impropers)."""
+        crossA = torch.cross(r12, r23, dim=1)
+        crossB = torch.cross(r23, r34, dim=1)
+        crossC = torch.cross(r23, crossA, dim=1)
+        normA = torch.norm(crossA, dim=1)
+        normB = torch.norm(crossB, dim=1)
+        normC = torch.norm(crossC, dim=1)
+        norm_crossB = crossB / normB.unsqueeze(1)
+
+        cos_phi = torch.sum(crossA * norm_crossB, dim=1) / normA
+        sin_phi = torch.sum(crossC * norm_crossB, dim=1) / normC
+        phi = -torch.atan2(sin_phi, cos_phi)
+
+        num_torsions = len(torsion_params[0]['idx'])
+        pot = torch.zeros(num_torsions, dtype=self.dtype, layout=r12.layout, device=self.device)
+        coeff = torch.zeros(num_torsions, dtype=self.dtype, layout=r12.layout, device=self.device)
+
+        for i in range(0, len(torsion_params)):
+            idx = torsion_params[i]['idx']
+            k_0 = torsion_params[i]['params'][:, 0]
+            phi_0 = torsion_params[i]['params'][:, 1]
+            per = torsion_params[i]['params'][:, 2]
+
+            if torch.all(per > 0):  # AMBER torsions
+                angle_diff = per * phi[idx] - phi_0
+                pot.scatter_add_(0, idx, k_0 * (1 + torch.cos(angle_diff)))
+                coeff.scatter_add_(0, idx, -per * k_0 * torch.sin(angle_diff))
+            else:  # CHARMM torsions
+                angle_diff = phi[idx] - phi_0
+                angle_diff[angle_diff < -pi] = angle_diff[angle_diff < -pi] + 2 * pi
+                angle_diff[angle_diff > pi] = angle_diff[angle_diff > pi] - 2 * pi
+                pot.scatter_add_(0, idx, k_0 * angle_diff**2)
+                coeff.scatter_add_(0, idx, 2 * k_0 * angle_diff)
+
+        # Taken from OpenMM
+        normDelta2 = torch.norm(r23, dim=1)
+        norm2Delta2 = normDelta2**2
+
+        force_factor_0 = (-coeff * normDelta2) / (normA**2)
+        force_factor_1 = torch.sum(r12 * r23, dim=1) / norm2Delta2
+        force_factor_2 = torch.sum(r34 * r23, dim=1) / norm2Delta2
+        force_factor_3 = (coeff * normDelta2) / (normB**2)
+
+        force_0_vec = force_factor_0.unsqueeze(1) * crossA
+        force_3_vec = force_factor_3.unsqueeze(1) * crossB
+        s = force_factor_1.unsqueeze(1) * force_0_vec - force_factor_2.unsqueeze(1) * force_3_vec
+
+        force_0 = -force_0_vec
+        force_1 = force_0_vec + s
+        force_2 = force_3_vec - s
+        force_3 = -force_3_vec
+
+        return pot, (force_0, force_1, force_2, force_3)
+
+    def _eval_electrostatics(self, dist, pair_idx):
+        charges = self.system.charges
+        pot = self.system.ELECTRO_FACTOR * charges[pair_idx[:, 0]] * charges[pair_idx[:, 1]] / dist
+
+        return pot, -pot / dist
+
+    def _eval_lj(self, dist, pair_idx):
+        atom_type_idx = self.system.mapped_atom_types(pair_idx)
+        a = self.system.A[atom_type_idx[:, 0], atom_type_idx[:, 1]]  # ndim is 1
+        b = self.system.B[atom_type_idx[:, 0], atom_type_idx[:, 1]]
+
+        inv_r_1 = 1 / dist
+        inv_r_6 = inv_r_1**6
+        inv_r_12 = inv_r_6 * inv_r_6
+
+        pot = a * inv_r_12 - b * inv_r_6
+        f = (-12 * a * inv_r_12 + 6 * b * inv_r_6) * inv_r_1
+
+        return pot, f
