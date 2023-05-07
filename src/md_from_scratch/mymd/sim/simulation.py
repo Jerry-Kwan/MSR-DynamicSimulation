@@ -36,7 +36,12 @@ class Simulation(object):
         n = self.system.num_atoms
         self.pos = torch.zeros(n, 3).type(self.dtype).to(self.device)
         self.vel = torch.zeros(n, 3).type(self.dtype).to(self.device)
-        self.forces = torch.zeros(n, 3).type(self.dtype).to(self.device)
+
+        # forces is a tensor with shape (n, 3) in self.dtype and self.device
+        # potentials is a dict storing the value of potentials in Python scalars
+        # see Forces.compute_potentials_and_forces for more details about these two variables
+        self.forces = None
+        self.potentials = None
 
     def set_positions(self, pos):
         assert pos.shape == (self.system.num_atoms, 3, 1), f'Shape of pos is not {(self.system.num_atoms, 3, 1)}'
