@@ -11,11 +11,28 @@ class System(object):
     NONBONDED_TERMS = ['lj', 'electrostatics']
     TERMS = BONDED_TERMS + NONBONDED_TERMS
 
-    def __init__(self, mol, ff, terms=TERMS, cutoff=None):
-        assert set(terms) <= set(self.TERMS), 'Some of terms are not implemented.'
-        self._build_sys_params(mol, ff, terms, cutoff)
+    def __init__(self, mol, ff, terms=TERMS, cutoff=None, external=None):
+        """Create a system.
 
-    def _build_sys_params(self, mol, ff, terms, cutoff):
+        Parameters
+        ----------
+        external: =None
+            An object that describes the external forces, such as Neural Network Potential.
+        """
+        assert set(terms) <= set(self.TERMS), 'Some of terms are not implemented.'
+
+        # set to None, used in set_device_and_dtype
+        self.bonds = None
+        self.angles = None
+        self.dihedrals = None
+        self.impropers = None
+        self.A = None
+        self.B = None
+
+        self._build_sys_params(mol, ff, terms, cutoff, external)
+
+    def _build_sys_params(self, mol, ff, terms, cutoff, external):
+        self.external = external
         self.cutoff = cutoff
         self.num_atoms = mol.numAtoms
 
