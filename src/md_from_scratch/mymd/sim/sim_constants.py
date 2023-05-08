@@ -12,3 +12,5 @@ TIME_FACTOR = 48.88821
 # Boltmann const  boltz   0.001987191 Kcal / (mole - degree K)
 # about 1.38064852e-23 * 1000 / 4.184 * 6.023 * 1e23 / 1e6
 BOLTZMANN = 0.001987191
+
+FS_2_NS = 1E-6

@@ -12,8 +12,7 @@ class Integrator(object):
 
 
 class VelocityVerletIntegrator(Integrator):
-    """An Integrator used in simulation using Velocity Verlet Algorithm.
-    """
+    """An Integrator used in simulation using Velocity Verlet Algorithm."""
 
     def __init__(self, step_size):
         """Create a VelocityVerletIntegrator object.
@@ -24,6 +23,7 @@ class VelocityVerletIntegrator(Integrator):
             The step size with which to integrate in simulation (in femtosecond, fs).
         """
         super().__init__()
+        self.dt_fs = step_size
         self.dt = step_size / TIME_FACTOR
 
     def step(self, steps, system, pos, vel, f):
@@ -36,7 +36,7 @@ class VelocityVerletIntegrator(Integrator):
         """
         _, forces = f.compute_potentials_and_forces(pos)
 
-        for _ in len(steps):
+        for _ in range(steps):
             self._vv_1(pos, vel, forces, system.masses)
             _, forces = f.compute_potentials_and_forces(pos)
             self._vv_2(vel, forces, system.masses)

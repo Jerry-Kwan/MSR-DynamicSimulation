@@ -1,9 +1,11 @@
+import os
 from tqdm import tqdm
 import numpy as np
 import torch
 
-from .sim_constants import BOLTZMANN
+from .sim_constants import BOLTZMANN, FS_2_NS
 from .forces import Forces
+from .reporter import Reporter
 
 
 class Simulation(object):
@@ -41,6 +43,8 @@ class Simulation(object):
         self.device = device
         self.dtype = dtype
         self.use_external = use_external
+
+        self.reporter = []
 
         assert set(sim_terms) <= set(self.TERMS), 'Some of terms are not implemented.'
         self.sim_terms = sim_terms
@@ -152,5 +156,52 @@ class Simulation(object):
 
         self.update_potentials_and_forces()
 
-    def step(self):
-        pass  # TOBEDONE
+    def add_reporter(self, reporter):
+        assert isinstance(reporter, Reporter), 'Parameter "reporter" is not an instance of Reporter class.'
+        self.reporter.append(reporter)
+
+    def step(self, steps, dcd_path, dcd_name='traj.dcd'):
+        """Advance the simulation by integrating a specified number of time steps.
+
+        Currently, reporter only support CSVReporter and only support one reporter.
+
+        TOBEDONE: multiple reporters.
+        """
+        reporter = self.reporter[0] if len(self.reporter) else None
+
+        os.makedirs(dcd_path, exist_ok=True)
+        dcd_name = os.path.join(dcd_path, dcd_name)
+        if os.path.exists(dcd_name):
+            print('Remove the original dcd file.')
+            os.remove(dcd_name)
+
+        traj = []
+        iter = tqdm(range(1, steps + 1))
+
+        for i in iter:
+            self.integrator.step(1, self.system, self.pos, self.vel, self._f)
+            # TOBEDONE: wrapper, and add temperature in integrator for alpha-beta
+            # because in openmm pot will decrease, so 验证 torchmd 行不行吧
+            self.update_potentials_and_forces()
+
+            traj.append(self.pos.detach().cpu().numpy().copy())
+            if reporter is not None and i % reporter.report_interval == 0:
+                info = dict()
+                info['step'] = i
+                info['ns'] = i * self.integrator.dt_fs * FS_2_NS
+                info['e_pot'] = self.potentials_sum
+
+                ret = self.get_e_kin_and_temperature()
+                info['e_kin'] = ret[0]
+                info['e_tot'] = ret[0] + self.potentials_sum
+                info['T'] = ret[1]
+                reporter.write_row(info)
+
+        # TOBEDONE: save trajectory
+
+    def get_e_kin_and_temperature(self):
+        """Return Kinetic Energy and corresponding temperature."""
+        e_kin = torch.sum(0.5 * torch.sum(self.vel * self.vel, dim=1, keepdim=True) * self.system.masses, dim=0)
+        e_kin = e_kin.item()
+        temperature = 2.0 / (3.0 * self.system.num_atoms * BOLTZMANN) * e_kin
+        return e_kin, temperature
