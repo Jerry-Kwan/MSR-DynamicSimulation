@@ -93,3 +93,63 @@ class Simulation(object):
     def update_potentials_and_forces(self):
         self.potentials, self.forces = self._f.compute_potentials_and_forces(self.pos)
         self.potentials_sum = np.sum([v for _, v in self.potentials.items()])
+
+    def minimize_energy(self, max_iter, disp_scipy=False):
+        """Search for a new set of particle positions that represent a local potential
+        energy minimum. On exit, the positions will have been updated (use L-BFGS-B in scipy).
+
+        Currently not supporting tolerance parameter like minimizeEnergy() method in openmm. If
+        you want to precisely halt the minimization once the root-mean-square value of all force
+        components reaches the tolerance, you need to manually determine the max_iter.
+
+        NOTICE: you need to call update_potentials_and_forces manually to update the potentials
+        and forces.
+
+        Parameters
+        ----------
+        max_iter : int
+            Maximum number of iterations to perform. In scipy, depending on the
+            method each iteration may use several function evaluations. Here,
+            we use L-BFGS-B.
+        disp_scipy : bool
+            Whether display scipy info or self-made info.
+        """
+        from scipy.optimize import minimize
+
+        def fun_eval(coords, info):
+            coords = coords.reshape(-1, 3)
+            coords = torch.tensor(coords).type(self.dtype).to(self.device)
+            pot, f = self._f.compute_potentials_and_forces(coords)
+
+            pot = np.sum([v for _, v in pot.items()])
+            grad = -f.detach().cpu().numpy().astype(np.float64)
+            norm_f_max = np.max(np.linalg.norm(grad, axis=1))
+            rms = np.sqrt(np.mean(grad**2))
+
+            # this is maybe max |proj g_i | in scipy L-BFGS-B minimize function
+            max_abs_f_1d = np.max(np.abs(grad))
+
+            if not disp_scipy:
+                ss = '{0:^12d}\t{1:.6f}\t{2:.6f}\t{3:.6f}\t{4:.6f}'
+                print(ss.format(info['num_fun_eval'], pot, norm_f_max, rms, max_abs_f_1d))
+
+            info['num_fun_eval'] += 1
+            return pot, grad.reshape(-1)
+
+        if not disp_scipy:
+            ss = '{0:12s}\t{1:9s}\t{2:9s}\t{3:9s}\t{4:12s}'
+            print(ss.format('num_fun_eval', 'E_pot', 'norm_F_max', 'rms', 'max_abs_f_1d'))
+
+        x_0 = self.pos.detach().cpu().numpy().astype(np.float64).reshape(-1)
+        options = {'maxiter': max_iter, 'disp': disp_scipy}
+        args = ({'num_fun_eval': 0}, )
+
+        # jac=True means use the gradient returned by fun_eval()
+        ret = minimize(fun_eval, x_0, method='L-BFGS-B', jac=True, options=options, args=args)
+
+        self.pos = torch.tensor(
+            ret.x.reshape(-1, 3),
+            dtype=self.dtype,
+            device=self.device,
+            requires_grad=self.pos.requires_grad
+        )  # yapf: disable
