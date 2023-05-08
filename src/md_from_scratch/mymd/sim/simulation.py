@@ -1,3 +1,4 @@
+from tqdm import tqdm
 import numpy as np
 import torch
 
@@ -9,9 +10,6 @@ class Simulation(object):
     """This class controls the whole simulation procedure.
 
     Imitating openmm.app.simulation.Simulation
-
-    Including:
-        1. TOBEDONE
     """
 
     BONDED_TERMS = ['bonds', 'angles', 'dihedrals', 'impropers']
@@ -96,14 +94,12 @@ class Simulation(object):
 
     def minimize_energy(self, max_iter, disp_scipy=False):
         """Search for a new set of particle positions that represent a local potential
-        energy minimum. On exit, the positions will have been updated (use L-BFGS-B in scipy).
+        energy minimum (use L-BFGS-B in scipy). On exit, the positions, potentials and forces
+        will have been updated (use L-BFGS-B in scipy).
 
         Currently not supporting tolerance parameter like minimizeEnergy() method in openmm. If
         you want to precisely halt the minimization once the root-mean-square value of all force
         components reaches the tolerance, you need to manually determine the max_iter.
-
-        NOTICE: you need to call update_potentials_and_forces manually to update the potentials
-        and forces.
 
         Parameters
         ----------
@@ -153,3 +149,8 @@ class Simulation(object):
             device=self.device,
             requires_grad=self.pos.requires_grad
         )  # yapf: disable
+
+        self.update_potentials_and_forces()
+
+    def step(self):
+        pass  # TOBEDONE
