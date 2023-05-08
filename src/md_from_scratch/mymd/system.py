@@ -233,15 +233,28 @@ class System(object):
         return factor
 
     def _get_periodic_box(self, mol):
-        """
-        Get periodic box (in Angstroms).
-        """
+        """Get periodic box (in Angstroms)."""
         assert mol.box.shape == (3, 1), 'Shape of mol.box is not (3, 1).'
 
         if np.all(mol.box == 0):
             return None
 
         return torch.tensor(mol.box.flatten())
+
+    def set_periodic_box_manual(self, box):
+        """Set periodic box manually (in Angstroms).
+
+        Parameters
+        ----------
+        box: numpy.ndarray
+            A numpy array representing the box with shape (3, 1).
+        """
+        assert box.shape == (3, 1), 'Shape of box is not (3, 1).'
+
+        if np.all(box == 0):
+            self.box = None
+
+        self.box = torch.tensor(box.flatten())
 
     def set_device_and_dtype(self, device, dtype):
         self._set_dtype(dtype)

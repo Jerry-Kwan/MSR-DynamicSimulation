@@ -326,7 +326,7 @@ class Forces(object):
         return pot, -pot / dist
 
     def _eval_lj(self, dist, pair_idx):
-        atom_type_idx = self.system.mapped_atom_types(pair_idx)
+        atom_type_idx = self.system.mapped_atom_types[pair_idx]
         a = self.system.A[atom_type_idx[:, 0], atom_type_idx[:, 1]]  # ndim is 1
         b = self.system.B[atom_type_idx[:, 0], atom_type_idx[:, 1]]
 
