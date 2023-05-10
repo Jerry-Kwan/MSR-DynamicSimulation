@@ -2,6 +2,7 @@ import os
 from tqdm import tqdm
 import numpy as np
 import torch
+from mdtraj.formats import DCDTrajectoryFile
 
 from .sim_constants import BOLTZMANN, FS_2_NS
 from .forces import Forces
@@ -160,10 +161,13 @@ class Simulation(object):
         assert isinstance(reporter, Reporter), 'Parameter "reporter" is not an instance of Reporter class.'
         self.reporter.append(reporter)
 
-    def step(self, steps, dcd_path, dcd_name='traj.dcd'):
+    def step(self, steps, dcd_path, dcd_interval, dcd_name='traj.dcd'):
         """Advance the simulation by integrating a specified number of time steps.
 
         Currently, reporter only support CSVReporter and only support one reporter.
+
+        Notice, for example, if steps=100 and dcd_interval=10, then totally 11 frames are
+        in the trajectory.
 
         TOBEDONE: multiple reporters.
         """
@@ -176,15 +180,19 @@ class Simulation(object):
             os.remove(dcd_name)
 
         traj = []
+        traj.append(self.pos.detach().cpu().numpy().copy())
         iter = tqdm(range(1, steps + 1))
 
         for i in iter:
             self.integrator.step(1, self.system, self.pos, self.vel, self._f)
             # TOBEDONE: wrapper, and add temperature in integrator for alpha-beta
             # because in openmm pot will decrease, so 验证 torchmd 行不行吧
+            # ala15 跑出去了! 应该是盒子的问题, 但是有现象了!
             self.update_potentials_and_forces()
 
-            traj.append(self.pos.detach().cpu().numpy().copy())
+            if i % dcd_interval == 0:
+                traj.append(self.pos.detach().cpu().numpy().copy())
+
             if reporter is not None and i % reporter.report_interval == 0:
                 info = dict()
                 info['step'] = i
@@ -197,7 +205,13 @@ class Simulation(object):
                 info['T'] = ret[1]
                 reporter.write_row(info)
 
-        # TOBEDONE: save trajectory
+        # save trajectory
+        # https://www.mdtraj.org/1.9.8.dev0/api/generated/mdtraj.formats.DCDTrajectoryFile.html
+        # the conventional units in the DCD file are angstroms and degrees
+        # search "dcd file unit" in bing or google for details
+        with DCDTrajectoryFile(dcd_name, 'w') as f:
+            for i in range(len(traj)):
+                f.write(traj[i])
 
     def get_e_kin_and_temperature(self):
         """Return Kinetic Energy and corresponding temperature."""
