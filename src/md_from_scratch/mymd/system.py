@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+import networkx as nx
 
 
 class System(object):
@@ -81,6 +82,9 @@ class System(object):
             self.ELECTRO_FACTOR = self.get_electrostatics_factor()
 
         self.box = self._get_periodic_box(mol)
+        self.mol_groups, self.non_grouped = self._build_atom_groups(mol.numAtoms, mol.bonds if len(mol.bonds) else None)
+        self.num_groups = len(self.mol_groups)
+        self.num_non_grouped = len(self.non_grouped)
 
     def _get_dihedrals_params(self, ff, uni_dihedrals_atom_types):
         """
@@ -145,11 +149,7 @@ class System(object):
 
     @staticmethod
     def get_improper_graph(impropers, bonds):
-        """
-        Build a graph with nodes representing atoms in impropers and edges representing bonds.
-        """
-        import networkx as nx
-
+        """Build a graph with nodes representing atoms in impropers and edges representing bonds."""
         g = nx.Graph()
         g.add_nodes_from(np.unique(impropers))
         g.add_edges_from([tuple(b) for b in bonds])
@@ -158,9 +158,7 @@ class System(object):
 
     @staticmethod
     def detect_improper_center(impr, graph):
-        """
-        Find the center atom in the improper.
-        """
+        """Find the center atom in the improper."""
         for i in impr:
             if len(np.intersect1d(list(graph.neighbors(i)), impr)) == 3:
                 return i
@@ -326,6 +324,11 @@ class System(object):
         if self.box is not None:
             self.box = self.box.to(device)
 
+        self.non_grouped = self.non_grouped.to(device)
+        if self.num_groups:
+            for i in range(self.num_groups):
+                self.mol_groups[i] = self.mol_groups[i].to(device)
+
     def get_exclusions(self, types=['bonds', 'angles']):
         """Get a list of exclusive atom pairs with type in types.
 
@@ -342,3 +345,18 @@ class System(object):
             exclusions += np_angles[:, [0, 2]].tolist()
 
         return exclusions
+
+    def _build_atom_groups(self, num_atoms, bonds):
+        if bonds is not None and len(bonds):
+            g = nx.Graph()
+            g.add_nodes_from(range(num_atoms))
+            g.add_edges_from(bonds.astype(np.int64))
+
+            mol_groups = list(nx.connected_components(g))
+            non_grouped = torch.tensor([list(group)[0] for group in mol_groups if len(group) == 1])
+            mol_groups = [torch.tensor(list(group)) for group in mol_groups if len(group) > 1]
+        else:
+            mol_groups = []
+            non_grouped = torch.arange(num_atoms)
+
+        return mol_groups, non_grouped

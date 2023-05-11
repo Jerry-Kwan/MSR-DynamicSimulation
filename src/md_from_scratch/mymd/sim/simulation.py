@@ -180,14 +180,14 @@ class Simulation(object):
             os.remove(dcd_name)
 
         traj = []
+        self._wrap()
         traj.append(self.pos.detach().cpu().numpy().copy())
         iter = tqdm(range(1, steps + 1))
 
         for i in iter:
             self.integrator.step(1, self.system, self.pos, self.vel, self._f)
-            # TOBEDONE: wrapper, and add temperature in integrator for alpha-beta
-            # because in openmm pot will decrease, so 验证 torchmd 行不行吧
-            # ala15 跑出去了! 应该是盒子的问题, 但是有现象了!
+            # TOBEDONE: test wrap and add temperature in integrator for better alpha-beta
+            self._wrap()
             self.update_potentials_and_forces()
 
             if i % dcd_interval == 0:
@@ -219,3 +219,22 @@ class Simulation(object):
         e_kin = e_kin.item()
         temperature = 2.0 / (3.0 * self.system.num_atoms * BOLTZMANN) * e_kin
         return e_kin, temperature
+
+    def _wrap(self):
+        if self.system.box is None:
+            return
+
+        if self.system.num_groups:
+            # work out the center and offset of every group and move group to [0, box] range
+            for i, group in enumerate(self.system.mol_groups):
+                center = torch.sum(self.pos[group], dim=0) / len(group)
+
+                # find the nearest box endpoint to center (use floor to make sure offset is smaller than center)
+                offset = torch.floor(center / self.system.box) * self.system.box
+                self.pos[group] -= offset.unsqueeze(0)
+
+        if self.system.num_non_grouped:
+            # move non_grouped atoms
+            box = self.system.box.unsqueeze(0)
+            offset = torch.floor(self.pos[self.system.non_grouped] / box) * box
+            self.pos[self.system.non_grouped] -= offset

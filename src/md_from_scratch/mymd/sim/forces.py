@@ -172,9 +172,9 @@ class Forces(object):
     def compute_distances(pos, idx, box):
         """Compute distances.
 
-        How box is used? Find n such that `diff - n * box` or `diff + n * box` is the nearest value to 0, then
-        diff is set to this value. The formula for this operation is `diff - box * round(diff / box)`, regardless
-        of whether or not diff is positive.
+        How box is used? Find n such that `diff - n * box` or `diff + n * box` is the nearest value to 0 (or with
+        min abs), then diff is set to this value. The formula for this operation is `diff - box * round(diff / box)`,
+        regardless of whether or not diff is positive.
 
         For example, if the original diff is 51 and box is 100, then new diff is -49.
 
