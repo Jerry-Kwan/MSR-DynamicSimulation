@@ -186,7 +186,6 @@ class Simulation(object):
 
         for i in iter:
             self.integrator.step(1, self.system, self.pos, self.vel, self._f)
-            # TOBEDONE: test wrap and add temperature in integrator for better alpha-beta
             self._wrap()
             self.update_potentials_and_forces()
 
