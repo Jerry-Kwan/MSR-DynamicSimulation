@@ -27,7 +27,8 @@ class Simulation(object):
                  dtype,
                  exclusions=['bonds', 'angles'],
                  use_external=False,
-                 sim_terms=TERMS):
+                 sim_terms=TERMS,
+                 use_centered=True):
         """Create a simulation object.
 
         Parameters
@@ -37,6 +38,8 @@ class Simulation(object):
             is in the exclusion list, then this pair is not computed for nunbonded forces.
         sim_terms: list=TERMS
             A list containing the force terms computed in simulation.
+        use_centered: bool=True
+            Used in _wrap() method.
         """
         self.mol = mol
         self.system = system
@@ -44,6 +47,7 @@ class Simulation(object):
         self.device = device
         self.dtype = dtype
         self.use_external = use_external
+        self.use_centered = use_centered
 
         self.reporter = []
 
@@ -222,6 +226,12 @@ class Simulation(object):
     def _wrap(self):
         if self.system.box is None:
             return
+
+        if self.use_centered:
+            c = torch.sum(self.pos, dim=0) / self.system.num_atoms
+
+            # subtract center from all atoms so that the center mol is at [box / 2, box / 2, box / 2]
+            self.pos = (self.pos - c.unsqueeze(0)) + (self.system.box.unsqueeze(0) / 2)
 
         if self.system.num_groups:
             # work out the center and offset of every group and move group to [0, box] range

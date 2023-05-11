@@ -7,6 +7,7 @@ def gen_files_from_pdb(old_pdb_file,
                        prmtop_file,
                        new_pdb_file,
                        forcefield_file='amber14-all.xml',
+                       other_ff_file=None,
                        nonbondedMethod=app.NoCutoff,
                        constraints=None,
                        rigidWater=False):
@@ -21,7 +22,10 @@ def gen_files_from_pdb(old_pdb_file,
     positions = pdb.positions
 
     # construct forcefield
-    forcefield = app.ForceField(forcefield_file)
+    if other_ff_file is None:
+        forcefield = app.ForceField(forcefield_file)
+    else:
+        forcefield = app.ForceField(forcefield_file, other_ff_file)
 
     # construct system
     system = forcefield.createSystem(topology,
