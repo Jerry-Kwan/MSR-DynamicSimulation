@@ -1,6 +1,6 @@
 # MD from Scratch
 
-An MD Simulation from scratch using Python.
+A molecular dynamic simulation from scratch using Python.
 
 ## References
 
