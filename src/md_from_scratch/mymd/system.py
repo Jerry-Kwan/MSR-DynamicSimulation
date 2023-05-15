@@ -11,6 +11,7 @@ class System(object):
     BONDED_TERMS = ['bonds', 'angles', 'dihedrals', 'impropers']
     NONBONDED_TERMS = ['lj', 'electrostatics']
     TERMS = BONDED_TERMS + NONBONDED_TERMS
+    ATOMIC_NUMBER = {'H': 1, 'C': 6, 'N': 7, 'O': 8, 'F': 9, 'S': 16}
 
     def __init__(self, mol, ff, terms=TERMS, cutoff=None, external=None):
         """Create a system.
@@ -19,6 +20,7 @@ class System(object):
         ----------
         external: =None
             An object that describes the external forces, such as Neural Network Potential.
+            Currently it only supports a NNP model that can be called by external(...).
         """
         assert set(terms) <= set(self.TERMS), 'Some of terms are not implemented.'
 
@@ -34,6 +36,10 @@ class System(object):
 
     def _build_sys_params(self, mol, ff, terms, cutoff, external):
         self.external = external
+        if external is not None:
+            z = [self.ATOMIC_NUMBER[e] for e in mol.element]  # z is short for atomic number
+            self.z = torch.tensor(z, dtype=torch.long)
+
         self.cutoff = cutoff
         self.num_atoms = mol.numAtoms
 
@@ -328,6 +334,10 @@ class System(object):
         if self.num_groups:
             for i in range(self.num_groups):
                 self.mol_groups[i] = self.mol_groups[i].to(device)
+
+        if self.external is not None:
+            self.external = self.external.to(device)
+            self.z = self.z.to(device)
 
     def get_exclusions(self, types=['bonds', 'angles']):
         """Get a list of exclusive atom pairs with type in types.

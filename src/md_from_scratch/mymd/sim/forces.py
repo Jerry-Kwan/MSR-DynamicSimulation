@@ -73,6 +73,7 @@ class Forces(object):
             raise RuntimeError('Found NaN coordinates.')
 
         potentials = {t: torch.zeros(1, device=self.device).type(self.dtype) for t in self.terms}
+        potentials['external'] = torch.zeros(1, device=self.device).type(self.dtype)
         forces = torch.zeros(self.num_atoms, 3).type(self.dtype).to(self.device)
 
         self._compute_bonded(pos, potentials, forces)
@@ -160,13 +161,13 @@ class Forces(object):
                 forces.index_add_(0, ava_idx[:, 1], force_vec)
 
     def _compute_external(self, pos, potentials, forces):
-        """Compute external potentials and forces.
-
-        External object must implement compute() method.
-        """
+        """Compute external potentials and forces."""
         if self.use_external:
             assert self.system.external is not None, 'External is None.'
-            raise NotImplementedError  # TOBEDONE
+            pos = pos.type(torch.float32)
+            pot, f = self.system.external(self.system.z, pos)
+            potentials['external'] += pot.detach()[0]
+            forces += f.detach()
 
     @staticmethod
     def compute_distances(pos, idx, box):

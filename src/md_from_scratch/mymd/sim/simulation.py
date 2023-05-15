@@ -97,6 +97,11 @@ class Simulation(object):
 
         self.vel[:] = mb_dist.type(self.dtype).to(self.device)
 
+    def set_external_model_eval(self):
+        """Set the external forces model to evaluation mode."""
+        assert self.system.external is not None, 'No external model.'
+        self.system.external.eval()
+
     def update_potentials_and_forces(self):
         self.potentials, self.forces = self._f.compute_potentials_and_forces(self.pos)
         self.potentials_sum = np.sum([v for _, v in self.potentials.items()])

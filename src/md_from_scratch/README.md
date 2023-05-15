@@ -14,12 +14,7 @@ A molecular dynamic simulation from scratch using Python.
 ## TODO List
 
 * Logically, charges and masses in System class should be (maybe) obtained from a ForceField object, not a Molecule object.
-
 * Implement the computation of forces according to $\frac{\partial E_{pot}}{\partial \vec {r_i}}$ using PyTorch autograd.
-
-* Implement external forces.
-
 * Implement DCDReporter class for recording the trajectory in simulation (currently it is implemented directly in step() method in Simulation class, which is not good).
 * Implement multiple reporters.
-
 * Add langevin in Integrator and [run Equilibration before NVE Simulation](https://github.com/noegroup/torchmd-autodiff/blob/main/simulate.ipynb).
