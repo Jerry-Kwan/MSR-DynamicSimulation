@@ -1,6 +1,8 @@
-Firstly, follow the environment setup instruction in
+Firstly, follow the environment setup instruction in torchmd-net
 
-mamba install moleculekit -c acellera -c conda-forge
+mamba install -c conda-forge -c acellera moleculekit openmm=8.0 mdtraj parmed ipython jupyterlab mdanalysis nglview 'ipywidgets>=7.6.0,<8' -y
+
+use `pip install -e .` to install `mymd`
 
 能量都是有参考点的，差距大是合理的
 

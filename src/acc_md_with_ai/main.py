@@ -1,4 +1,5 @@
 import os
+import random
 import numpy as np
 import torch
 from moleculekit.molecule import Molecule
@@ -13,3 +14,81 @@ from openmm import unit
 import openmm
 
 import mymd
+
+seed = 99
+random.seed(seed)
+np.random.seed(seed)
+torch.manual_seed(seed)
+
+data_path = '../../data/acc_md_with_ai/aspirin/'
+model_path = '../../data/acc_md_with_ai/aspirin/et-md17/'
+csv_path = '../../data/acc_md_with_ai/aspirin/rslt_mymd_net/'
+dcd_path = '../../data/acc_md_with_ai/aspirin/rslt_mymd_net/'
+
+pdb_file = os.path.join(data_path, 'aspirin.pdb')
+psf_file = os.path.join(data_path, 'aspirin.psf')
+prmtop_file = os.path.join(data_path, 'aspirin.prmtop')
+model_file = os.path.join(model_path, 'epoch=2139-val_loss=0.2543-test_loss=0.2317.ckpt')
+
+cutoff = None
+T = 300
+dt_fs = 2
+dcd_interval = 100
+csv_interval = 50
+steps = 50000
+min_energy_max_iter = 100
+box_size = 100
+device = 'cpu'
+precision = torch.float
+use_centered = True
+
+use_external = False
+if use_external:
+    from torchmdnet.models.model import load_model
+
+    model = load_model(model_file, derivative=True)
+    sim_terms = []
+else:
+    model = None
+    sim_terms = ['bonds', 'angles', 'dihedrals', 'impropers', 'lj', 'electrostatics']
+
+mol = mymd.get_molecule(prmtop_file=prmtop_file, pdb_file=pdb_file)
+
+try:
+    ff = mymd.PrmtopMolForceField(mol, prmtop_file, allow_unequal_duplicates=False)
+except:
+    print('False causes error, use True.')
+    ff = mymd.PrmtopMolForceField(mol, prmtop_file, allow_unequal_duplicates=True)
+
+system = mymd.System(mol, ff, cutoff=cutoff, external=model)
+system.set_periodic_box_manual(np.array([box_size, box_size, box_size]).reshape(3, 1))
+
+integrator = mymd.VelocityVerletIntegrator(dt_fs)
+
+simulation = mymd.Simulation(
+    mol,
+    system,
+    integrator,
+    device,
+    precision,
+    use_centered=use_centered,
+    use_external=use_external,
+    sim_terms=sim_terms
+)  # yapf: disable
+simulation.set_positions(mol.coords)
+simulation.set_velocities_to_temperature(T=T)
+simulation.update_potentials_and_forces()
+if use_external:
+    simulation.set_external_model_eval()
+
+csv_reporter = mymd.CSVReporter(csv_path, csv_interval)
+simulation.add_reporter(csv_reporter)
+
+print(simulation.potentials)
+print(simulation.potentials_sum)
+
+simulation.minimize_energy(min_energy_max_iter)
+print(simulation.potentials)
+print(simulation.potentials_sum)
+
+simulation.step(steps, dcd_path, dcd_interval)

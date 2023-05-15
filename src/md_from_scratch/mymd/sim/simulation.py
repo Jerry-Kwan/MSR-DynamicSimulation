@@ -92,7 +92,7 @@ class Simulation(object):
         Set the velocities of all particles in the System to random values chosen from a
         Maxwell-Boltzmann distribution at a given temperature.
         """
-        std_normal_dist = torch.randn((self.system.num_atoms, 3)).type(self.dtype)
+        std_normal_dist = torch.randn((self.system.num_atoms, 3)).type(self.dtype).to(self.device)
         mb_dist = torch.sqrt(T * BOLTZMANN / self.system.masses) * std_normal_dist
 
         self.vel[:] = mb_dist.type(self.dtype).to(self.device)
