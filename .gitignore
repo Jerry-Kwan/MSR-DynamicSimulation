@@ -1,10 +1,11 @@
-# Common
+# common
 .DS_Store
 .vscode/
 .ipynb_checkpoints/
 __pycache__/
 ~$*
 tmp*
+*.egg-info/
 
 # docs
 my_notes/
