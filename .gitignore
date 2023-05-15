@@ -8,10 +8,13 @@ tmp*
 *.egg-info/
 
 # docs
+application/
 my_notes/
 paper/
-private/
 snapshot/
 
 # src
 Mambaforge-Linux-x86_64.sh
+
+# data
+md17_aspirin.npz
