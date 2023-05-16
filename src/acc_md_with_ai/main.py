@@ -15,7 +15,7 @@ import openmm
 
 import mymd
 
-seed = 99
+seed = 142
 random.seed(seed)
 np.random.seed(seed)
 torch.manual_seed(seed)
@@ -31,6 +31,7 @@ prmtop_file = os.path.join(data_path, 'aspirin.prmtop')
 model_file = os.path.join(model_path, 'epoch=2139-val_loss=0.2543-test_loss=0.2317.ckpt')
 
 cutoff = None
+cutoff_lower = 1e-5  # needed
 T = 300
 dt_fs = 2
 dcd_interval = 100
@@ -42,11 +43,11 @@ device = 'cpu'
 precision = torch.float
 use_centered = True
 
-use_external = False
+use_external = True
 if use_external:
     from torchmdnet.models.model import load_model
 
-    model = load_model(model_file, derivative=True)
+    model = load_model(model_file, derivative=True, cutoff_lower=cutoff_lower)
     sim_terms = []
 else:
     model = None
