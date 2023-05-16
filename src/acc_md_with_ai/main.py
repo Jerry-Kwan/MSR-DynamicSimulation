@@ -20,16 +20,19 @@ random.seed(seed)
 np.random.seed(seed)
 torch.manual_seed(seed)
 
+# path
 data_path = '../../data/acc_md_with_ai/aspirin/'
 model_path = '../../data/acc_md_with_ai/aspirin/et-md17/'
 csv_path = '../../data/acc_md_with_ai/aspirin/rslt_mymd_net/'
 dcd_path = '../../data/acc_md_with_ai/aspirin/rslt_mymd_net/'
 
+# file
 pdb_file = os.path.join(data_path, 'aspirin.pdb')
 psf_file = os.path.join(data_path, 'aspirin.psf')
 prmtop_file = os.path.join(data_path, 'aspirin.prmtop')
 model_file = os.path.join(model_path, 'epoch=2139-val_loss=0.2543-test_loss=0.2317.ckpt')
 
+# hyperparameters
 cutoff = None
 cutoff_lower = 1e-5  # needed
 T = 300
@@ -53,19 +56,24 @@ else:
     model = None
     sim_terms = ['bonds', 'angles', 'dihedrals', 'impropers', 'lj', 'electrostatics']
 
+# build Molecule object
 mol = mymd.get_molecule(prmtop_file=prmtop_file, pdb_file=pdb_file)
 
+# build forcefield
 try:
     ff = mymd.PrmtopMolForceField(mol, prmtop_file, allow_unequal_duplicates=False)
 except:
     print('False causes error, use True.')
     ff = mymd.PrmtopMolForceField(mol, prmtop_file, allow_unequal_duplicates=True)
 
+# build system
 system = mymd.System(mol, ff, cutoff=cutoff, external=model)
 system.set_periodic_box_manual(np.array([box_size, box_size, box_size]).reshape(3, 1))
 
+# set integrator
 integrator = mymd.VelocityVerletIntegrator(dt_fs)
 
+# build simulation object
 simulation = mymd.Simulation(
     mol,
     system,
@@ -82,14 +90,17 @@ simulation.update_potentials_and_forces()
 if use_external:
     simulation.set_external_model_eval()
 
+# add reporter
 csv_reporter = mymd.CSVReporter(csv_path, csv_interval)
 simulation.add_reporter(csv_reporter)
 
 print(simulation.potentials)
 print(simulation.potentials_sum)
 
+# minimize_energy
 simulation.minimize_energy(min_energy_max_iter)
 print(simulation.potentials)
 print(simulation.potentials_sum)
 
+# start simulation
 simulation.step(steps, dcd_path, dcd_interval)
