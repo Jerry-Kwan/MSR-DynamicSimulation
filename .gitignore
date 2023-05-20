@@ -10,11 +10,9 @@ tmp*
 # docs
 application/
 my_notes/
-paper/
-snapshot/
 
-# src
-Mambaforge-Linux-x86_64.sh
-
-# data
+# acc_md_with_ai
 md17_aspirin.npz
+
+# misc
+Mambaforge-Linux-x86_64.sh
