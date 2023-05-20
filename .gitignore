@@ -14,5 +14,9 @@ my_notes/
 # acc_md_with_ai
 md17_aspirin.npz
 
+# foundation model
+Pretrained-MoLFormer*
+dsgdb9nsd.xyz*
+
 # misc
 Mambaforge-Linux-x86_64.sh
