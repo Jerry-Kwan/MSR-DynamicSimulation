@@ -16,6 +16,12 @@ too large to be uploaded to GitHub, so you need to download it from the above li
 
 download from [figshare](https://figshare.com/collections/Quantum_chemistry_structures_and_properties_of_134_kilo_molecules/978904)
 
+see [README](https://figshare.com/articles/dataset/Readme_file_Data_description_for_Quantum_chemistry_structures_and_properties_of_134_kilo_molecules_/1057641?backTo=/collections/Quantum_chemistry_structures_and_properties_of_134_kilo_molecules/978904) for data description for this dataset
+
 [some info](http://quantum-machine.org/datasets/)
 
 too large to be uploaded to GitHub, so you need to download it from the above link
+
+`qm9_z_and_pos`:
+
+use ***data_process.ipynb*** to generate, including z and pos corresponding to train, valid and test data in ***finetune_datasets_from_molformer/qm9/***
