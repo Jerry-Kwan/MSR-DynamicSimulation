@@ -21,10 +21,10 @@ np.random.seed(seed)
 torch.manual_seed(seed)
 
 # path
-data_path = '../../data/acc_md_with_ai/aspirin/'
-model_path = '../../data/acc_md_with_ai/aspirin/et-md17/'
-csv_path = '../../data/acc_md_with_ai/aspirin/rslt_mymd_net/'
-dcd_path = '../../data/acc_md_with_ai/aspirin/rslt_mymd_net/'
+data_path = 'data/aspirin/'
+model_path = 'data/aspirin/et-md17/'
+csv_path = 'data/aspirin/rslt_mymd_net/'
+dcd_path = 'data/aspirin/rslt_mymd_net/'
 
 # file
 pdb_file = os.path.join(data_path, 'aspirin.pdb')
