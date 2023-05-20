@@ -25,11 +25,8 @@ def get_args():
         default=(784, 200, 100, 10),
         help='size of layers of MLP, e.g. (784, 200, 100, 10) means 784 -> 200 -> 100 -> 10',
     )
-    parser.add_argument('--dataset-root',
-                        default='../../../data/vanilla_python_impl/mlp_mnist',
-                        type=str,
-                        help='dataset root directory')
-    parser.add_argument('--save-root', default='./', type=str, help='image save root directory')
+    parser.add_argument('--dataset-root', default='mlp_mnist/', type=str, help='dataset root directory')
+    parser.add_argument('--save-root', default='mlp_mnist/', type=str, help='image save root directory')
 
     return parser.parse_args()
 

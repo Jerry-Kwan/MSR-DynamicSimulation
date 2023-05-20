@@ -76,8 +76,7 @@ def data_iter(x, y, batch_size, shuffle=True):
 
 
 if __name__ == '__main__':
-    x_train, t_train, x_test, t_test = load_data('../../../data/vanilla_python_impl/mlp_mnist',
-                                                 download=False, process_mnist=False)
+    x_train, t_train, x_test, t_test = load_data('mlp_mnist/', download=False, process_mnist=False)
     print(x_train.shape, t_train.shape, x_test.shape, t_test.shape)
     print(x_train[0][:10])
     print(t_train[:10])

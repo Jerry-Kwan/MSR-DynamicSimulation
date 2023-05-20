@@ -47,7 +47,7 @@ def get_args():
     parser.add_argument('--save-ckpt-every-epochs', type=int, default=3, help='save ckpt every epochs')
     parser.add_argument('--ckpt-root',
                         type=str,
-                        default='../../../data/vanilla_python_impl/transformer/',
+                        default='data/',
                         help='ckpt root directory')
 
     # optimizer params
@@ -62,7 +62,7 @@ def get_args():
     parser.add_argument('--train', type=bool, default=True, help='whether training model')
     parser.add_argument('--num-epoch', type=int, default=30, help='the number of epochs')
     parser.add_argument('--batch-size', type=int, default=64, help='batch size')
-    parser.add_argument('--save-root', default='./', type=str, help='save root directory for graph')
+    parser.add_argument('--save-root', default='data/', type=str, help='save root directory for graph')
     parser.add_argument('--log-every-batches', type=int, default=10, help='log every batches')
 
     # dataset params
@@ -73,7 +73,7 @@ def get_args():
                         default=None,
                         help='number of examples used in dataset (default all)')
     parser.add_argument('--dataset-root',
-                        default='../../../data/vanilla_python_impl/transformer/',
+                        default='data/',
                         type=str,
                         help='dataset root directory')
 
