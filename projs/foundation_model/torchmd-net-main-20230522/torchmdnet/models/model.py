@@ -54,6 +54,17 @@ def create_model(args, prior_model=None, mean=None, std=None):
             distance_influence=args["distance_influence"],
             **shared_args,
         )
+    elif args["model"] == "transformer2":
+        # jk modified - new
+        from torchmdnet.models.torchmd_t2 import TorchMD_T2
+
+        is_equivariant = False
+        representation_model = TorchMD_T2(
+            attn_activation=args["attn_activation"],
+            num_heads=args["num_heads"],
+            distance_influence=args["distance_influence"],
+            **shared_args,
+        )
     else:
         raise ValueError(f'Unknown architecture: {args["model"]}')
 
@@ -77,14 +88,25 @@ def create_model(args, prior_model=None, mean=None, std=None):
     )
 
     # combine representation and output network
-    model = TorchMD_Net(
-        representation_model,
-        output_model,
-        prior_model=prior_model,
-        mean=mean,
-        std=std,
-        derivative=args["derivative"],
-    )
+    if args["model"] != "transformer2":
+        model = TorchMD_Net(
+            representation_model,
+            output_model,
+            prior_model=prior_model,
+            mean=mean,
+            std=std,
+            derivative=args["derivative"],
+        )
+    else:
+        # jk modified - new
+        model = TorchMD_Net2(
+            representation_model,
+            output_model,
+            prior_model=prior_model,
+            mean=mean,
+            std=std,
+            derivative=args["derivative"],
+        )
     return model
 
 
@@ -193,7 +215,9 @@ class TorchMD_Net(nn.Module):
         self,
         z: Tensor,
         pos: Tensor,
-        batch: Optional[Tensor] = None,
+        batch: Tensor,
+        external_embed: Tensor,  # jk modified - new
+        mask: Tensor,
         q: Optional[Tensor] = None,
         s: Optional[Tensor] = None,
         extra_args: Optional[Dict[str, Tensor]] = None
@@ -207,6 +231,114 @@ class TorchMD_Net(nn.Module):
 
         # run the potentially wrapped representation model
         x, v, z, pos, batch = self.representation_model(z, pos, batch, q=q, s=s)
+
+        # apply the output network
+        x = self.output_model.pre_reduce(x, v, z, pos, batch)
+
+        # scale by data standard deviation
+        if self.std is not None:
+            x = x * self.std
+
+        # apply atom-wise prior model
+        if self.prior_model is not None:
+            for prior in self.prior_model:
+                x = prior.pre_reduce(x, z, pos, batch, extra_args)
+
+        # aggregate atoms
+        x = self.output_model.reduce(x, batch)
+
+        # shift by data mean
+        if self.mean is not None:
+            x = x + self.mean
+
+        # apply output model after reduction
+        y = self.output_model.post_reduce(x)
+
+        # apply molecular-wise prior model
+        if self.prior_model is not None:
+            for prior in self.prior_model:
+                y = prior.post_reduce(y, z, pos, batch, extra_args)
+
+        # compute gradients with respect to coordinates
+        if self.derivative:
+            grad_outputs: List[Optional[torch.Tensor]] = [torch.ones_like(y)]
+            dy = grad(
+                [y],
+                [pos],
+                grad_outputs=grad_outputs,
+                create_graph=True,
+                retain_graph=True,
+            )[0]
+            if dy is None:
+                raise RuntimeError("Autograd returned None for the force prediction.")
+            return y, -dy
+        # TODO: return only `out` once Union typing works with TorchScript (https://github.com/pytorch/pytorch/pull/53180)
+        return y, None
+
+
+# jk modified - new
+class TorchMD_Net2(nn.Module):
+    def __init__(
+        self,
+        representation_model,
+        output_model,
+        prior_model=None,
+        mean=None,
+        std=None,
+        derivative=False,
+    ):
+        super(TorchMD_Net2, self).__init__()
+        self.representation_model = representation_model
+        self.output_model = output_model
+
+        if not output_model.allow_prior_model and prior_model is not None:
+            prior_model = None
+            rank_zero_warn(
+                (
+                    "Prior model was given but the output model does "
+                    "not allow prior models. Dropping the prior model."
+                )
+            )
+        if isinstance(prior_model, priors.base.BasePrior):
+            prior_model = [prior_model]
+        self.prior_model = None if prior_model is None else torch.nn.ModuleList(prior_model)
+
+        self.derivative = derivative
+
+        mean = torch.scalar_tensor(0) if mean is None else mean
+        self.register_buffer("mean", mean)
+        std = torch.scalar_tensor(1) if std is None else std
+        self.register_buffer("std", std)
+
+        self.reset_parameters()
+
+    def reset_parameters(self):
+        self.representation_model.reset_parameters()
+        self.output_model.reset_parameters()
+        if self.prior_model is not None:
+            for prior in self.prior_model:
+                prior.reset_parameters()
+
+    def forward(
+        self,
+        z: Tensor,
+        pos: Tensor,
+        batch: Tensor,
+        external_embed: Tensor,
+        mask: Tensor,
+        q: Optional[Tensor] = None,
+        s: Optional[Tensor] = None,
+        extra_args: Optional[Dict[str, Tensor]] = None
+    ) -> Tuple[Tensor, Optional[Tensor]]:
+
+        assert z.dim() == 1 and z.dtype == torch.long
+        batch = torch.zeros_like(z) if batch is None else batch
+
+        if self.derivative:
+            pos.requires_grad_(True)
+
+        # run the potentially wrapped representation model
+        x, v, z, pos, batch = self.representation_model(z, pos, batch, external_embed, mask, q=q, s=s)
 
         # apply the output network
         x = self.output_model.pre_reduce(x, v, z, pos, batch)

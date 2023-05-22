@@ -4,9 +4,9 @@
 
 * **fast-transformers-master-20230522.zip**:
 
-    archive of ***fast-transformers*** used in MoLFormer
+    archive of fast-transformers used in MoLFormer
 
-    ***setup.py*** needs to be fixed:
+    *setup.py* needs to be fixed:
 
     ```python
     # with open("README.rst") as f:
@@ -14,6 +14,18 @@
     ```
 
     and then use `pip install -e .` to install
+    
+* **torchmd-net-main-20230522**:
+
+    archive of torchmd-net used in my MoLFormer
+
+    some codes are modified due to the usage of low version of pytorch-lightning, marked with ***jk modified - env***
+    
+    *torchmd_t2.py* is added as a new model to implement attention between SMILES embeddings and z (atomic number) embeddings
+    
+    some codes are modified to merge the new model, marked with ***jk modified - new***
+    
+    use `pip install -e .` to install torchmd-net
 
 ## Data
 
@@ -39,4 +51,4 @@
 
 * **qm9_z_and_pos**:
 
-    use ***data_process.ipynb*** to generate, including z and pos corresponding to train, valid and test data in ***finetune_datasets_from_molformer/qm9/***
+    use *data_process.ipynb* to generate, including z and pos corresponding to train, valid and test data in *finetune_datasets_from_molformer/qm9/*
