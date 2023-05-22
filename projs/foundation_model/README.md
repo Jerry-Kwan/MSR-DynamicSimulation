@@ -52,3 +52,17 @@
 * **qm9_z_and_pos**:
 
     use *data_process.ipynb* to generate, including z and pos corresponding to train, valid and test data in *finetune_datasets_from_molformer/qm9/*
+
+## How to Run
+
+TODO
+
+## References
+
+[TorchMD-NET](https://github.com/torchmd/torchmd-net)
+
+[IBM MoLFormer](https://github.com/IBM/molformer)
+
+[li-car-fei fast-transformers](https://github.com/li-car-fei/fast-transformers)
+
+Ramakrishnan, Raghunathan; Dral, Pavlo; Rupp, Matthias; Anatole von Lilienfeld, O. (2014): Quantum chemistry structures and properties of 134 kilo molecules. figshare. Collection. https://doi.org/10.6084/m9.figshare.c.978904.v5

@@ -171,6 +171,9 @@ class TorchMD_T2(nn.Module):
         q: Optional[Tensor] = None,
     ) -> Tuple[Tensor, Optional[Tensor], Tensor, Tensor, Tensor]:
 
+        # batch.shape: (total_num_atoms_in_batch,)
+        # x.shape: (total_num_atoms_in_batch, self.hidden_channels)
+        # mask.shape: (batch_size, max_len_of_smiles)
         x = self.embedding(z)
         batch_size = mask.shape[0]
         bin_count = torch.bincount(batch)
