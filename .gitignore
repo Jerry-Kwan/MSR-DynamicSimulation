@@ -6,10 +6,12 @@ __pycache__/
 ~$*
 tmp*
 *.egg-info/
+*.synctex.gz
 
 # docs
 application/
 my_notes/
+report/
 
 # acc_md_with_ai
 md17_aspirin.npz
