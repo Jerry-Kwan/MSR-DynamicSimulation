@@ -91,27 +91,27 @@ if __name__ == '__main__':
     rslt = []
     rslt.append(euler(dy_dx, d2y_dx2, x0, y0, x_end, step))
     rslt.append(modified_euler(dy_dx, d2y_dx2, x0, y0, x_end, step))
-    rslt.append(leapfrog(dy_dx, d2y_dx2, x0, y0, x_end, step))
-    rslt.append(modified_euler_2(dy_dx, d2y_dx2, x0, y0, x_end, step))
+    # rslt.append(leapfrog(dy_dx, d2y_dx2, x0, y0, x_end, step))
+    # rslt.append(modified_euler_2(dy_dx, d2y_dx2, x0, y0, x_end, step))
 
-    plt.figure()
+    plt.figure(dpi=300)
     plt.plot(rslt[0][0], rslt[0][1], 'bo--', label='Euler')
     plt.plot(rslt[1][0], rslt[1][1], 'go--', label='Modified Euler')
-    plt.plot(rslt[2][0], rslt[2][1], 'yo--', label='Leapfrog')
-    plt.plot(rslt[3][0], rslt[3][1], 'co--', label='Modified Euler 2')
+    # plt.plot(rslt[2][0], rslt[2][1], 'yo--', label='Leapfrog')
+    # plt.plot(rslt[3][0], rslt[3][1], 'co--', label='Modified Euler 2')
 
     x_truth = np.arange(x0, x_end + step_truth, step_truth)
     plt.plot(x_truth, x_truth ** 3, 'r', label='Exact')
     # plt.plot(x_truth, -np.exp(-x_truth), 'r', label='Exact')
-    plt.title('Compare different methods and exact solution for simple ODE\n(y=x^3)', fontsize=20)
-    plt.xlabel('x', fontsize=20)
-    plt.ylabel('y', fontsize=20)
+    plt.title('Compare different methods and exact solution for simple ODE\n(y=x^3)')
+    plt.xlabel('x')
+    plt.ylabel('y')
     plt.grid()
     plt.legend(loc='best')
-    plt.show()
+    plt.savefig('data/curve.png')
 
     name = ['Euler', 'Modified Euler', 'Leapfrog', 'Modified Euler 2']
 
-    for i in range(4):
+    for i in range(2):
         mean_relative_error = np.mean(np.abs((rslt[i][0] ** 3 - rslt[i][1]) / rslt[i][0] ** 3))
         print(f'Mean relative error of {name[i]}: {mean_relative_error}')
