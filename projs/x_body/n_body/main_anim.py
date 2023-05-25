@@ -11,6 +11,7 @@ def get_args():
     parser.add_argument('--seed', type=int, default=1, help='random seed (default: 1)')
     parser.add_argument('--num-particles', default=3, type=int, help='number of particles')
     parser.add_argument('--softening', type=float, default=0.1, help='softening')
+    parser.add_argument('--xyz-limit', type=float, default=3.0, help='xyz limit in gif')
     parser.add_argument('--num-samples', default=500, type=int, help='number of samples')
     parser.add_argument('--t-begin', type=float, default=0.0, help='begining time')
     parser.add_argument('--t-end', type=float, default=20.0, help='end time')
@@ -69,11 +70,10 @@ if __name__ == '__main__':
     ax.set_xlabel('x-coordinate')
     ax.set_ylabel('y-coordinate')
     ax.set_zlabel('z-coordinate')
-    ax.set_title(f'Visualization of orbits of stars in a n-bodysystem\n(with {args.integrator} integrator)')
+    ax.set_title(f'Visualization of orbits of stars in a {args.num_particles}-body '
+                 f'system\n(with {args.integrator} integrator)')
 
-    color_choices = ['darkblue', 'tab:red', 'green',
-                     'tab:cyan', 'tab:brown', 'tab:olive',
-                     'tab:orange', 'tab:pink']
+    color_choices = ['darkblue', 'tab:red', 'green', 'tab:cyan', 'tab:brown', 'tab:olive', 'tab:orange', 'tab:pink']
 
     if args.num_particles > 8:
         tra = [ax.plot([], [], [], color='darkblue')[0] for i in range(args.num_particles)]
@@ -82,9 +82,10 @@ if __name__ == '__main__':
         tra = [ax.plot([], [], [], color=color_choices[i])[0] for i in range(args.num_particles)]
         p = [ax.plot([], [], [], color=color_choices[i], marker="o")[0] for i in range(args.num_particles)]
 
-    ax.set_xlim([-3, 3])
-    ax.set_ylim([-3, 3])
-    ax.set_zlim([-3, 3])
+    lim = args.xyz_limit
+    ax.set_xlim([-lim, lim])
+    ax.set_ylim([-lim, lim])
+    ax.set_zlim([-lim, lim])
 
     def init():
         for i in range(args.num_particles):
@@ -118,4 +119,5 @@ if __name__ == '__main__':
                          frames=list(range(1, args.num_samples + 1)),
                          blit=True,
                          interval=args.interval)
-    plt.show()
+    # plt.show()
+    anim.save(f'../data/{args.num_particles}_body.gif', writer='pillow')
