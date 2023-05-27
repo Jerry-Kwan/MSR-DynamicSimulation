@@ -75,6 +75,9 @@ class LayerNorm:
 
         grad_T = grad.T
 
+        # maybe wrong?
+        # different from the formulae in my report
+        # maybe sum should be changed to mean
         output_grad = (1 / self.feature_size) * np.expand_dims(
             self.gamma, axis=self.normalized_axis).T * self.stddev_inv * (
                 self.feature_size * grad_T - np.sum(grad_T, axis=0) -
