@@ -1,6 +1,16 @@
-# MD from Scratch
+# MD Simulation from Scratch
 
 A molecular dynamic simulation from scratch using Python.
+
+## Environment Setup
+
+See `env_md_from_scratch.sh` (using mamba, conda may also work).
+
+## How to Run
+
+See jupyter notebooks for details.
+
+`data/ala15/rslt_in_report/` and `data/1ytc/rslt_mymd_in_report/` save the trajectories used in report, you can just use these results to avoid running the simulation again.
 
 ## References
 
