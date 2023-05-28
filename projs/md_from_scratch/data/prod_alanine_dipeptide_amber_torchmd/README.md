@@ -1,3 +1,3 @@
 from [torchmd](https://github.com/torchmd/torchmd)
 
-alanine_dipeptide_amber_torchmd is only used to compare the result of our program with that of torchmd
+alanine_dipeptide_amber_torchmd is only used to compare the result of our program with that of torchmd in `compare_with_torchmd.ipynb`
