@@ -57,6 +57,8 @@
 
 TODO
 
+记录 rslt 都是什么
+
 ## References
 
 [TorchMD-NET](https://github.com/torchmd/torchmd-net)

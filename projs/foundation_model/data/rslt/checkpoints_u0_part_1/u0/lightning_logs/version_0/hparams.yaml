@@ -1,0 +1,45 @@
+all_params_ft: false
+aug: null
+batch_size: 128
+checkpoint_dir: ./checkpoints_u0_part_1/u0/models
+checkpoint_every: 100
+checkpoint_root: ./checkpoints_u0_part_1/u0
+checkpoints_folder: ./checkpoints_u0_part_1
+d_dropout: 0.1
+data_root: ../data/qm9
+dataset_name: qm9
+dataset_names:
+- valid
+- test
+desc_skip_connection: false
+device: cuda
+dims:
+- 768
+- 768
+- 768
+- 1
+dropout: 0.1
+eval_dataset_length: null
+fc_h: 512
+fold: 0
+from_scratch: false
+lr_multiplier: 1
+lr_start: 3.0e-05
+max_epochs: 500
+measure_name: u0
+mode: avg
+n_batch: 512
+n_embd: 768
+n_head: 12
+n_jobs: 1
+n_layer: 12
+num_classes: null
+num_feats: 32
+num_workers: 8
+results_dir: ./checkpoints_u0_part_1/u0/results
+run_name: qm9_u0_rot_0_avg_lr_3e-05_batch_128_drop_0.1_[768, 768, 768, 1]
+seed: 12345
+seed_path: ../data/checkpoints/N-Step-Checkpoint_3_30000.ckpt
+smiles_embedding: /dccstor/medscan7/smallmolecule/runs/ba-predictor/small-data/embeddings/protein/ba_embeddings_tanh_512_2986138_2.pt
+torchmd_model: transformer
+train_dataset_length: null
