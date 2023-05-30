@@ -2,6 +2,41 @@
 
 ## Environment Setup
 
+```bash
+bash Mambaforge-Linux-x86_64.sh
+source ~/.bashrc
+
+mamba create --name MolTran_CUDA11 python=3.8.10
+mamba activate MolTran_CUDA11
+
+mamba install pytorch==1.13.0 pytorch-cuda=11.7 -c pytorch -c nvidia
+mamba install -c conda-forge cudatoolkit-dev  # should be 11.7, used to install nvcc for apex
+
+mamba install rdkit==2021.03.2 pandas=1.2.4 scikit-learn=0.24.2 scipy=1.6.3 
+
+pip cache purge
+pip install -i https://mirrors.aliyun.com/pypi/simple transformers==4.6.0 pytorch-lightning==1.1.5 datasets==1.6.2 jupyterlab==3.4.0 ipywidgets==7.7.0 bertviz==1.4.0
+
+git clone git@github.com:li-car-fei/fast-transformers.git
+# here you need to modify setup.py mentioned in the following section
+pip install -e . --user --no-cache-dir
+
+git clone git@github.com:NVIDIA/apex.git
+cd apex
+export CUDA_HOME=$CONDA_PREFIX
+pip install -v --disable-pip-version-check --no-cache-dir --global-option="--cpp_ext" --global-option="--cuda_ext" ./
+
+# for torchmd-net
+mamba install matplotlib
+mamba install pyg=2.2.0 -c pyg
+mamba install torchmetrics=0.8.2
+mamba install -c pyg pytorch-cluster=1.6.0
+mamba install -c pyg pytorch-scatter=2.0.9
+
+# torchmd-net
+pip install -e .
+```
+
 * **fast-transformers-master-20230522.zip**:
 
     archive of fast-transformers used in MoLFormer
@@ -55,15 +90,27 @@
 
 ## How to Run
 
-TODO
+`molformer-main-20230522/finrtune/run_myft_all_1.sh` (actually same as part_1)
 
-记录 rslt 都是什么
+`molformer-main-20230522/finrtune/run_myft_all_2.sh`
+
+`molformer-main-20230522/finrtune/run_myft_part_1.sh`
+
+`molformer-main-20230522/finrtune/run_myft_part_2.sh`
+
+## Results
+
+`data/rslt/`
+
+* all_2: all parameters tuned + new model
+* part_1: MoLFormer frozen + old model (i.e. have nothing to do with MoLFormer)
+* part_2: MoLFormer frozen + new model
 
 ## References
 
-[TorchMD-NET](https://github.com/torchmd/torchmd-net)
-
 [IBM MoLFormer](https://github.com/IBM/molformer)
+
+[TorchMD-NET](https://github.com/torchmd/torchmd-net)
 
 [li-car-fei fast-transformers](https://github.com/li-car-fei/fast-transformers)
 
