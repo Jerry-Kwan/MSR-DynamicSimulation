@@ -1,8 +1,8 @@
 # MSR - Dynamic Simulation
 
-This is the repository for USTC-MSRA 2023 Innovation Project, with the topic of **Dynamic Simulation**.
+This is the repository for [USTC-MSRA 2023 Innovation Project](https://sist.ustc.edu.cn/2023/0302/c5142a593670/page.htm), with the topic of **Dynamic Simulation**.
 
-[Info](https://sist.ustc.edu.cn/2023/0302/c5142a593670/page.htm)
+:star: [Report](docs/report/main.pdf) :star:
 
 ## Project Structure
 
